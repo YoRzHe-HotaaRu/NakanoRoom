@@ -14,7 +14,8 @@ const DEFAULT_VOLUME = 0.18; // 18% volume
 
 export function VideoBackground() {
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-    const [isMuted, setIsMuted] = useState(false);
+    // Start MUTED to comply with browser autoplay policies
+    const [isMuted, setIsMuted] = useState(true);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     // Handle video end - move to next video
@@ -42,15 +43,23 @@ export function VideoBackground() {
 
     const toggleMute = () => {
         if (videoRef.current) {
-            videoRef.current.muted = !isMuted;
-            setIsMuted(!isMuted);
+            const newMutedState = !isMuted;
+            videoRef.current.muted = newMutedState;
+            setIsMuted(newMutedState);
+
+            // If unmuting, ensure video is playing
+            if (!newMutedState) {
+                videoRef.current.play().catch((err) => {
+                    console.log('Play prevented:', err);
+                });
+            }
         }
     };
 
     return (
         <>
             <div className="fixed inset-0 z-0 overflow-hidden">
-                {/* Video element */}
+                {/* Video element - starts muted for autoplay compliance */}
                 <video
                     ref={videoRef}
                     className="absolute w-full h-full object-cover blur-[6px]"
@@ -82,7 +91,7 @@ export function VideoBackground() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                title={isMuted ? 'Unmute' : 'Mute'}
+                title={isMuted ? 'Unmute (click to enable sound)' : 'Mute'}
             >
                 {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
             </motion.button>
