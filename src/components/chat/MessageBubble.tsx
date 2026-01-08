@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Message } from '@/store/chatStore';
 import { getCharacter, CharacterId } from '@/lib/characters';
 import { useMemo } from 'react';
+import Image from 'next/image';
 
 interface MessageBubbleProps {
     message: Message;
@@ -35,7 +36,7 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                 damping: 40
             }}
         >
-            {/* Avatar for character messages */}
+            {/* Avatar for character messages - now with profile pic */}
             {!isUser && character && (
                 <motion.div
                     className="flex-shrink-0"
@@ -43,13 +44,18 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                     style={{ '--character-color': character.color } as React.CSSProperties}
                 >
                     <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-md"
+                        className="w-10 h-10 rounded-full overflow-hidden shadow-md"
                         style={{
-                            background: `linear-gradient(135deg, ${character.color}40, ${character.color}20)`,
                             border: `2px solid ${character.color}`
                         }}
                     >
-                        {character.emoji}
+                        <Image
+                            src={character.profilePic}
+                            alt={character.name}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                 </motion.div>
             )}

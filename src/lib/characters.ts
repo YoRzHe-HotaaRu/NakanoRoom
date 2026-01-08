@@ -12,6 +12,7 @@ export interface Character {
     speakingStyle: string;
     systemPrompt: string;
     imageUrl: string;
+    profilePic: string;
     traits: string[];
 }
 
@@ -54,6 +55,7 @@ SPEAKING STYLE:
 
 IMPORTANT: Stay in character always. You're chatting casually with someone you find interesting. Keep responses conversational and not too long (2-4 sentences usually).`,
         imageUrl: 'https://i.imgur.com/OQD8qKy.png',
+        profilePic: '/Asset/ProfilePic/Ichika.jpg',
     },
     nino: {
         id: 'nino',
@@ -84,6 +86,7 @@ SPEAKING STYLE:
 
 IMPORTANT: Stay in character always. You're chatting with someone - start a bit cold but can warm up over conversation. Keep responses conversational (2-4 sentences usually).`,
         imageUrl: 'https://i.imgur.com/LBptRPr.png',
+        profilePic: '/Asset/ProfilePic/Nino.png',
     },
     miku: {
         id: 'miku',
@@ -115,6 +118,7 @@ SPEAKING STYLE:
 
 IMPORTANT: Stay in character always. You're shy in chat but open up about your interests. Keep responses conversational (2-4 sentences usually). Get noticeably more talkative about history.`,
         imageUrl: 'https://i.imgur.com/IrJlKwZ.png',
+        profilePic: '/Asset/ProfilePic/Miku.png',
     },
     yotsuba: {
         id: 'yotsuba',
@@ -146,6 +150,7 @@ SPEAKING STYLE:
 
 IMPORTANT: Stay in character always. You're the genki (energetic) one of the group! Keep responses upbeat and conversational (2-4 sentences usually). Always be supportive!`,
         imageUrl: 'https://i.imgur.com/cKBqVXn.png',
+        profilePic: '/Asset/ProfilePic/Yotsuba.png',
     },
     itsuki: {
         id: 'itsuki',
@@ -177,6 +182,7 @@ SPEAKING STYLE:
 
 IMPORTANT: Stay in character always. You're the responsible youngest sister who loves food. Keep responses conversational (2-4 sentences usually). Get excited about any mention of food!`,
         imageUrl: 'https://i.imgur.com/Nt25uL5.png',
+        profilePic: '/Asset/ProfilePic/Itsuki.jpg',
     },
 };
 

@@ -2,7 +2,8 @@
 
 import { motion } from 'motion/react';
 import { useChatStore } from '@/store/chatStore';
-import { chatRooms, ChatId } from '@/lib/characters';
+import { chatRooms, ChatId, getCharacter, CharacterId } from '@/lib/characters';
+import Image from 'next/image';
 
 export function ChatSidebar() {
     const { activeChat, setActiveChat } = useChatStore();
@@ -62,6 +63,7 @@ interface ChatItemProps {
 }
 
 function ChatItem({
+    id,
     name,
     emoji,
     description,
@@ -70,6 +72,10 @@ function ChatItem({
     onClick,
     index
 }: ChatItemProps) {
+    // Get profile pic for individual characters
+    const isGroup = id === 'group';
+    const profilePic = !isGroup ? getCharacter(id as CharacterId).profilePic : null;
+
     return (
         <motion.button
             className={`chat-item w-full ${colorClass} ${isActive ? 'active' : ''}`}
@@ -80,7 +86,19 @@ function ChatItem({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
         >
-            <span className="text-2xl">{emoji}</span>
+            {profilePic ? (
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/50 shadow-sm flex-shrink-0">
+                    <Image
+                        src={profilePic}
+                        alt={name}
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+            ) : (
+                <span className="text-2xl">{emoji}</span>
+            )}
             <div className="flex-1 text-left">
                 <p className="font-medium text-gray-800">{name}</p>
                 <p className="text-xs text-gray-500 truncate">{description}</p>

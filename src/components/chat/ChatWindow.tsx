@@ -5,12 +5,39 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useChatStore, useActiveChat, useCurrentMessages, useTypingCharacters } from '@/store/chatStore';
 import { MessageBubble, TypingIndicator } from './MessageBubble';
 import { ChatInput } from './ChatInput';
-import { chatRooms, CharacterId } from '@/lib/characters';
+import { chatRooms, CharacterId, ChatRoom, ChatId, getCharacter } from '@/lib/characters';
+import Image from 'next/image';
 
 interface ChatResponse {
     characterId: CharacterId;
     content: string;
     isReaction: boolean;
+}
+
+// Header avatar component - shows profile pic for individual chats, emoji for group
+function ChatHeaderAvatar({ chatId, room }: { chatId: ChatId; room: ChatRoom | undefined }) {
+    const isGroup = chatId === 'group';
+
+    if (isGroup || !room) {
+        return <span className="text-2xl">{room?.emoji}</span>;
+    }
+
+    const character = getCharacter(chatId as CharacterId);
+
+    return (
+        <div
+            className="w-10 h-10 rounded-full overflow-hidden shadow-md"
+            style={{ border: `2px solid ${character.color}` }}
+        >
+            <Image
+                src={character.profilePic}
+                alt={character.name}
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+            />
+        </div>
+    );
 }
 
 export function ChatWindow() {
@@ -110,7 +137,7 @@ export function ChatWindow() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.2 }}
                 >
-                    <span className="text-2xl">{currentRoom?.emoji}</span>
+                    <ChatHeaderAvatar chatId={activeChat} room={currentRoom} />
                     <div>
                         <h2 className="font-display font-bold text-lg text-gray-800">
                             {currentRoom?.name}

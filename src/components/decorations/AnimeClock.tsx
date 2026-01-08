@@ -4,44 +4,24 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 
 export function AnimeClock() {
-    // Initialize with null to avoid hydration mismatch
     const [time, setTime] = useState<Date | null>(null);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
         setTime(new Date());
-        const timer = setInterval(() => setTime(new Date()), 1000);
+        const timer = setInterval(() => setTime(new Date()), 100);
         return () => clearInterval(timer);
     }, []);
 
-    // Don't render clock hands until mounted to avoid hydration mismatch
     if (!mounted || !time) {
         return (
-            <div className="relative w-32 h-32">
-                <div className="absolute inset-0 rounded-full bg-white/80 backdrop-blur-sm shadow-sakura border-2 border-sakura-200">
-                    <div className="absolute inset-1 rounded-full border border-sakura-100">
-                        {/* Hour markers only - no dynamic content */}
-                        {[...Array(12)].map((_, i) => (
-                            <div
-                                key={i}
-                                className="absolute w-1 h-3 bg-sakura-300 rounded-full"
-                                style={{
-                                    top: '4px',
-                                    left: '50%',
-                                    transform: `translateX(-50%) rotate(${i * 30}deg)`,
-                                    transformOrigin: 'center 58px',
-                                }}
-                            />
-                        ))}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-gradient-to-br from-sakura-400 to-sakura-600 shadow-sm z-20" />
-                    </div>
+            <div className="clock-container">
+                <div className="clock">
+                    <div className="clock-dot" />
+                    <ClockNumbers />
+                    <DialLines />
                 </div>
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-sakura-200">
-                    <span className="font-mono text-xs text-sakura-600 font-medium">--:--</span>
-                </div>
-                <div className="absolute -top-2 -right-2 text-lg">🌸</div>
-                <div className="absolute -bottom-2 -left-2 text-sm">✨</div>
             </div>
         );
     }
@@ -49,103 +29,81 @@ export function AnimeClock() {
     const hours = time.getHours();
     const minutes = time.getMinutes();
     const seconds = time.getSeconds();
+    const date = time.getDate();
+    const month = time.getMonth() + 1;
+    const year = time.getFullYear();
 
-    // Calculate angles
-    const secondAngle = (seconds / 60) * 360;
-    const minuteAngle = (minutes / 60) * 360 + (seconds / 60) * 6;
-    const hourAngle = ((hours % 12) / 12) * 360 + (minutes / 60) * 30;
+    const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = weekdays[time.getDay()];
 
-    // Format time without locale to avoid hydration issues
-    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    // Calculate rotation angles
+    const hourDeg = hours * 30 + minutes * (360 / 720);
+    const minuteDeg = minutes * 6 + seconds * (360 / 3600);
+    const secondDeg = seconds * 6;
+
+    const formattedDate = `${date.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
 
     return (
         <motion.div
-            className="relative w-32 h-32"
+            className="clock-container"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5 }}
         >
-            {/* Clock face */}
-            <div className="absolute inset-0 rounded-full bg-white/80 backdrop-blur-sm shadow-sakura border-2 border-sakura-200">
-                {/* Decorative border */}
-                <div className="absolute inset-1 rounded-full border border-sakura-100">
-                    {/* Hour markers */}
-                    {[...Array(12)].map((_, i) => (
-                        <div
-                            key={i}
-                            className="absolute w-1 h-3 bg-sakura-300 rounded-full"
-                            style={{
-                                top: '4px',
-                                left: '50%',
-                                transform: `translateX(-50%) rotate(${i * 30}deg)`,
-                                transformOrigin: 'center 58px',
-                            }}
-                        />
-                    ))}
+            <div className="clock">
+                {/* Date and Day displays */}
+                <div className="clock-info clock-date">{formattedDate}</div>
+                <div className="clock-info clock-day">{day}</div>
 
-                    {/* Center decoration */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-gradient-to-br from-sakura-400 to-sakura-600 shadow-sm z-20" />
+                {/* Center dot */}
+                <div className="clock-dot" />
 
-                    {/* Hour hand */}
-                    <div
-                        className="absolute top-1/2 left-1/2 w-1.5 h-8 bg-gradient-to-t from-sakura-600 to-sakura-400 rounded-full origin-bottom"
-                        style={{
-                            transform: `translateX(-50%) translateY(-100%) rotate(${hourAngle}deg)`,
-                        }}
-                    />
+                {/* Hands */}
+                <div
+                    className="hour-hand"
+                    style={{ transform: `rotate(${hourDeg}deg)` }}
+                />
+                <div
+                    className="minute-hand"
+                    style={{ transform: `rotate(${minuteDeg}deg)` }}
+                />
+                <div
+                    className="second-hand"
+                    style={{ transform: `rotate(${secondDeg}deg)` }}
+                />
 
-                    {/* Minute hand */}
-                    <div
-                        className="absolute top-1/2 left-1/2 w-1 h-11 bg-gradient-to-t from-sakura-500 to-sakura-300 rounded-full origin-bottom"
-                        style={{
-                            transform: `translateX(-50%) translateY(-100%) rotate(${minuteAngle}deg)`,
-                        }}
-                    />
+                {/* Numbers */}
+                <ClockNumbers />
 
-                    {/* Second hand */}
-                    <div
-                        className="absolute top-1/2 left-1/2 w-0.5 h-12 bg-sakura-400 rounded-full origin-bottom z-10"
-                        style={{
-                            transform: `translateX(-50%) translateY(-100%) rotate(${secondAngle}deg)`,
-                        }}
-                    />
-                </div>
+                {/* Dial lines */}
+                <DialLines />
             </div>
-
-            {/* Digital time display */}
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-sakura-200">
-                <span className="font-mono text-xs text-sakura-600 font-medium">
-                    {formattedTime}
-                </span>
-            </div>
-
-            {/* Sakura decoration */}
-            <div className="absolute -top-2 -right-2 text-lg">🌸</div>
-            <div className="absolute -bottom-2 -left-2 text-sm">✨</div>
         </motion.div>
     );
 }
 
-// Additional decorative component
-export function SakuraDecoration() {
+function ClockNumbers() {
     return (
-        <div className="relative">
-            {/* Cherry blossom branch illustration */}
-            <motion.div
-                className="text-4xl"
-                animate={{
-                    rotate: [0, 5, -5, 0],
-                    y: [0, -3, 0],
-                }}
-                transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: 'easeInOut'
-                }}
-            >
-                🌸🍃
-            </motion.div>
-        </div>
+        <>
+            <span className="clock-num h12">12</span>
+            <span className="clock-num h3">3</span>
+            <span className="clock-num h6">6</span>
+            <span className="clock-num h9">9</span>
+        </>
+    );
+}
+
+function DialLines() {
+    return (
+        <>
+            {Array.from({ length: 60 }, (_, i) => (
+                <div
+                    key={i}
+                    className={`dial-line ${i % 5 === 0 ? 'dial-line-major' : ''}`}
+                    style={{ transform: `rotate(${i * 6}deg)` }}
+                />
+            ))}
+        </>
     );
 }
 
@@ -172,7 +130,7 @@ export function AnimeQuote() {
 
     return (
         <motion.div
-            className="text-center p-3 bg-white/50 backdrop-blur-sm rounded-xl border border-sakura-200/50"
+            className="text-center"
             key={quoteIndex}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
