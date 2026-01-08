@@ -4,13 +4,17 @@ import { ChatSidebar } from '@/components/chat/ChatSidebar';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { CharacterPanel } from '@/components/character/CharacterPanel';
 import { AnimeClock, AnimeQuote } from '@/components/decorations/AnimeClock';
+import { VideoBackground } from '@/components/decorations/VideoBackground';
 import { motion } from 'motion/react';
 
 export function MainLayout() {
     return (
-        <div className="h-screen w-screen overflow-hidden bg-sakura-gradient flex items-center justify-center gap-4 p-8">
-            {/* Background decoration */}
-            <BackgroundDecoration />
+        <div className="h-screen w-screen overflow-hidden flex items-center justify-center gap-4 p-8">
+            {/* Video Background */}
+            <VideoBackground />
+
+            {/* Floating sakura petals overlay */}
+            <FloatingPetals />
 
             {/* Main Chat Container - Left side */}
             <motion.div
@@ -78,8 +82,7 @@ export function MainLayout() {
     );
 }
 
-function BackgroundDecoration() {
-    // Pre-calculated positions to avoid hydration mismatch (no Math.random)
+function FloatingPetals() {
     const petalConfigs = [
         { left: 5, size: 10, duration: 18, delay: 0 },
         { left: 15, size: 12, duration: 20, delay: 2 },
@@ -94,49 +97,31 @@ function BackgroundDecoration() {
     ];
 
     return (
-        <>
-            {/* Gradient overlay */}
-            <div className="fixed inset-0 bg-gradient-to-br from-sakura-100/50 via-transparent to-sakura-200/30 pointer-events-none" />
-
-            {/* Floating sakura petals */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                {petalConfigs.map((config, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute text-sakura-300"
-                        style={{
-                            left: `${config.left}%`,
-                            top: -20,
-                            fontSize: `${config.size}px`,
-                        }}
-                        animate={{
-                            y: ['0vh', '105vh'],
-                            x: [0, Math.sin(i) * 50, Math.cos(i) * 30, 0],
-                            rotate: [0, 360, 720],
-                        }}
-                        transition={{
-                            duration: config.duration,
-                            repeat: Infinity,
-                            delay: config.delay,
-                            ease: 'linear',
-                        }}
-                    >
-                        🌸
-                    </motion.div>
-                ))}
-            </div>
-
-            {/* Subtle grid pattern */}
-            <div
-                className="fixed inset-0 pointer-events-none opacity-[0.02]"
-                style={{
-                    backgroundImage: `
-            linear-gradient(rgba(255, 107, 138, 0.5) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 107, 138, 0.5) 1px, transparent 1px)
-          `,
-                    backgroundSize: '50px 50px',
-                }}
-            />
-        </>
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-[1]">
+            {petalConfigs.map((config, i) => (
+                <motion.div
+                    key={i}
+                    className="absolute text-sakura-300"
+                    style={{
+                        left: `${config.left}%`,
+                        top: -20,
+                        fontSize: `${config.size}px`,
+                    }}
+                    animate={{
+                        y: ['0vh', '105vh'],
+                        x: [0, Math.sin(i) * 50, Math.cos(i) * 30, 0],
+                        rotate: [0, 360, 720],
+                    }}
+                    transition={{
+                        duration: config.duration,
+                        repeat: Infinity,
+                        delay: config.delay,
+                        ease: 'linear',
+                    }}
+                >
+                    🌸
+                </motion.div>
+            ))}
+        </div>
     );
 }
