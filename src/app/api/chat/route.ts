@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getZenMuxClient } from '@/lib/api/zenmux-client';
+import { chatAsCharacter, getGroupChatResponses } from '@/lib/api/zenmux-client';
 import {
     selectGroupChatResponders,
     shouldSendKaomojiOnly,
     generateReaction
 } from '@/lib/api/group-chat-logic';
-import { CharacterId, getCharacter } from '@/lib/characters';
+import { CharacterId } from '@/lib/characters';
 
 interface ChatMessage {
     role: 'user' | 'assistant';
@@ -37,52 +37,60 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const client = getZenMuxClient();
-
-        // Convert history to API format
-        const conversationHistory = history.slice(-10).map((msg) => ({
+        // Convert history to API format (no character prefixes to avoid LLM confusion)
+        const conversationHistory = history.slice(-8).map((msg) => ({
             role: msg.role as 'user' | 'assistant',
-            content: msg.characterId
-                ? `[${getCharacter(msg.characterId).name}]: ${msg.content}`
-                : msg.content,
+            content: msg.content,
         }));
 
         if (chatId === 'group') {
-            // Group chat - multiple characters may respond
+            // Group chat - multiple characters respond IN PARALLEL
             const responders = selectGroupChatResponders(message);
             const responses: CharacterResponse[] = [];
 
+            // Separate kaomoji-only responders from full responders
+            const kaomojiResponders: CharacterId[] = [];
+            const fullResponders: CharacterId[] = [];
+
             for (const characterId of responders) {
-                // Check if this character will just send a kaomoji
                 if (shouldSendKaomojiOnly()) {
-                    responses.push({
-                        characterId,
-                        content: generateReaction(characterId),
-                        isReaction: true,
-                    });
+                    kaomojiResponders.push(characterId);
                 } else {
-                    try {
-                        const response = await client.chatAsCharacter(
-                            characterId,
-                            message,
-                            conversationHistory
-                        );
-                        responses.push({
-                            characterId,
-                            content: response,
-                            isReaction: false,
-                        });
-                    } catch (error) {
-                        console.error(`Error getting response from ${characterId}:`, error);
-                        // Add a fallback reaction if API fails
-                        responses.push({
-                            characterId,
-                            content: generateReaction(characterId),
-                            isReaction: true,
-                        });
-                    }
+                    fullResponders.push(characterId);
                 }
             }
+
+            // Add kaomoji responses immediately
+            for (const characterId of kaomojiResponders) {
+                responses.push({
+                    characterId,
+                    content: generateReaction(characterId),
+                    isReaction: true,
+                });
+            }
+
+            // Get full responses in PARALLEL using separate API keys
+            if (fullResponders.length > 0) {
+                const parallelResponses = await getGroupChatResponses(
+                    fullResponders,
+                    message,
+                    conversationHistory
+                );
+
+                for (const [characterId, content] of parallelResponses) {
+                    responses.push({
+                        characterId,
+                        content,
+                        isReaction: false,
+                    });
+                }
+            }
+
+            // Sort responses by a deterministic order for consistency
+            const characterOrder: CharacterId[] = ['yotsuba', 'miku', 'nino', 'ichika', 'itsuki'];
+            responses.sort((a, b) =>
+                characterOrder.indexOf(a.characterId) - characterOrder.indexOf(b.characterId)
+            );
 
             return NextResponse.json({
                 type: 'group',
@@ -93,10 +101,11 @@ export async function POST(request: NextRequest) {
             const characterId = chatId as CharacterId;
 
             try {
-                const response = await client.chatAsCharacter(
+                const response = await chatAsCharacter(
                     characterId,
                     message,
-                    conversationHistory
+                    conversationHistory,
+                    false // not group chat
                 );
 
                 return NextResponse.json({
