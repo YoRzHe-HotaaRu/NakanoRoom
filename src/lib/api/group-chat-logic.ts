@@ -1,8 +1,55 @@
 import { CharacterId, getAllCharacterIds, getRandomKaomoji } from '../characters';
 
 /**
+ * Check for @mentions in the message and return guaranteed responders
+ */
+export function getAtMentionedCharacters(message: string): CharacterId[] {
+    const mentioned: CharacterId[] = [];
+    const lowerMessage = message.toLowerCase();
+
+    // Check for @mentions (case insensitive)
+    const mentionPatterns: Record<CharacterId, RegExp[]> = {
+        ichika: [/@ichika/i, /@いちか/i],
+        nino: [/@nino/i, /@にの/i],
+        miku: [/@miku/i, /@みく/i],
+        yotsuba: [/@yotsuba/i, /@よつば/i],
+        itsuki: [/@itsuki/i, /@いつき/i],
+    };
+
+    for (const [id, patterns] of Object.entries(mentionPatterns)) {
+        for (const pattern of patterns) {
+            if (pattern.test(message)) {
+                mentioned.push(id as CharacterId);
+                break;
+            }
+        }
+    }
+
+    return mentioned;
+}
+
+/**
+ * Check if a character's name is mentioned (without @)
+ */
+function isNameMentioned(message: string, characterId: CharacterId): boolean {
+    const lowerMessage = message.toLowerCase();
+
+    // Name variations (including nicknames and Japanese)
+    const nameVariations: Record<CharacterId, string[]> = {
+        ichika: ['ichika', 'いちか', 'onee-san', 'big sis'],
+        nino: ['nino', 'にの'],
+        miku: ['miku', 'みく'],
+        yotsuba: ['yotsuba', 'よつば', 'yots'],
+        itsuki: ['itsuki', 'いつき', 'eatsuki'],
+    };
+
+    return nameVariations[characterId].some(name => lowerMessage.includes(name));
+}
+
+/**
  * Selects which characters will respond in the group chat
  * Returns 1-3 characters, with higher probability for relevant responders
+ * @mentions guarantee the character will respond
  */
 export function selectGroupChatResponders(
     userMessage: string,
@@ -10,7 +57,34 @@ export function selectGroupChatResponders(
 ): CharacterId[] {
     const allCharacters = getAllCharacterIds();
 
-    // Determine how many characters will respond (1-3)
+    // First, check for @mentions - these characters ALWAYS respond
+    const atMentioned = getAtMentionedCharacters(userMessage);
+
+    // If there are @mentions, they respond first, then optionally add others
+    if (atMentioned.length > 0) {
+        // If 2+ characters are @mentioned, just return them
+        if (atMentioned.length >= 2) {
+            return atMentioned;
+        }
+
+        // If 1 character is @mentioned, they respond + maybe 0-1 others
+        const othersCount = Math.random() < 0.5 ? 1 : 0;
+        if (othersCount === 0) {
+            return atMentioned;
+        }
+
+        // Add one random other character
+        const availableOthers = allCharacters.filter(id => !atMentioned.includes(id));
+        const weights = calculateResponseWeights(userMessage, availableOthers, previousResponders);
+        const selectedOther = weightedRandomSelect(availableOthers, weights);
+
+        if (selectedOther) {
+            return [...atMentioned, selectedOther];
+        }
+        return atMentioned;
+    }
+
+    // No @mentions - use weighted selection (1-3 characters)
     const responseCount = Math.floor(Math.random() * 3) + 1;
 
     // Weight characters based on message content relevance
@@ -21,23 +95,36 @@ export function selectGroupChatResponders(
     const available = [...allCharacters];
 
     for (let i = 0; i < Math.min(responseCount, available.length); i++) {
-        const totalWeight = available.reduce((sum, id) => sum + (weights.get(id) || 1), 0);
-        let random = Math.random() * totalWeight;
-
-        for (let j = 0; j < available.length; j++) {
-            const id = available[j];
-            const weight = weights.get(id) || 1;
-            random -= weight;
-
-            if (random <= 0) {
-                selected.push(id);
-                available.splice(j, 1);
-                break;
-            }
+        const selectedChar = weightedRandomSelect(available, weights);
+        if (selectedChar) {
+            selected.push(selectedChar);
+            const idx = available.indexOf(selectedChar);
+            if (idx > -1) available.splice(idx, 1);
         }
     }
 
     return selected;
+}
+
+/**
+ * Select a random character based on weights
+ */
+function weightedRandomSelect(
+    characters: CharacterId[],
+    weights: Map<CharacterId, number>
+): CharacterId | null {
+    const totalWeight = characters.reduce((sum, id) => sum + (weights.get(id) || 1), 0);
+    let random = Math.random() * totalWeight;
+
+    for (const id of characters) {
+        const weight = weights.get(id) || 1;
+        random -= weight;
+        if (random <= 0) {
+            return id;
+        }
+    }
+
+    return characters.length > 0 ? characters[0] : null;
 }
 
 /**
@@ -53,11 +140,11 @@ function calculateResponseWeights(
 
     // Keyword mappings for each character
     const keywords: Record<CharacterId, string[]> = {
-        ichika: ['movie', 'acting', 'actress', 'drama', 'film', 'older', 'sister', 'work', 'job', 'date'],
-        nino: ['cook', 'food', 'recipe', 'fashion', 'clothes', 'style', 'dress', 'hate', 'love', 'protect'],
-        miku: ['history', 'sengoku', 'samurai', 'japan', 'war', 'quiet', 'headphones', 'music', 'shy'],
-        yotsuba: ['help', 'sport', 'run', 'exercise', 'team', 'club', 'fun', 'play', 'yay', 'happy'],
-        itsuki: ['study', 'school', 'teacher', 'food', 'eat', 'hungry', 'meat', 'learn', 'test', 'exam'],
+        ichika: ['movie', 'acting', 'actress', 'drama', 'film', 'older', 'sister', 'work', 'job', 'date', 'flirt', 'cute'],
+        nino: ['cook', 'cooking', 'food', 'recipe', 'fashion', 'clothes', 'style', 'dress', 'hate', 'love', 'protect', 'tsundere'],
+        miku: ['history', 'sengoku', 'samurai', 'japan', 'war', 'quiet', 'headphones', 'music', 'shy', 'warrior'],
+        yotsuba: ['help', 'sport', 'run', 'exercise', 'team', 'club', 'fun', 'play', 'yay', 'happy', 'genki', 'energy'],
+        itsuki: ['study', 'school', 'teacher', 'food', 'eat', 'hungry', 'meat', 'learn', 'test', 'exam', 'star', 'first'],
     };
 
     for (const id of characters) {
@@ -75,9 +162,9 @@ function calculateResponseWeights(
             weight *= 0.7;
         }
 
-        // Check if character is mentioned by name
-        if (lowerMessage.includes(id)) {
-            weight += 3;
+        // BOOST if character's name is mentioned (without @)
+        if (isNameMentioned(message, id)) {
+            weight += 5.0; // Strong boost for name mentions
         }
 
         weights.set(id, Math.max(weight, 0.3));

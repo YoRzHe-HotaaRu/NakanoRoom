@@ -109,11 +109,22 @@ async function callChatApi(
 
         const data: ChatCompletionResponse = await response.json();
 
+        // Debug: log the full response
+        console.log(`API Response for request:`, JSON.stringify(data, null, 2).substring(0, 500));
+
         if (!data.choices || data.choices.length === 0) {
+            console.error('No choices in response:', data);
             throw new Error('No response choices returned');
         }
 
-        return data.choices[0].message.content;
+        // Handle null/undefined content
+        const content = data.choices[0].message?.content;
+        if (!content) {
+            console.error('Empty content in response. Full choice:', data.choices[0]);
+            throw new Error('Empty response content received');
+        }
+
+        return content;
     } catch (error) {
         console.error('API call failed:', error);
         throw error;
@@ -121,7 +132,12 @@ async function callChatApi(
 }
 
 // Clean response to remove character name prefixes
-function cleanResponse(response: string, characterId: CharacterId): string {
+function cleanResponse(response: string | null | undefined, characterId: CharacterId): string {
+    // Handle null/undefined responses
+    if (!response) {
+        return '';
+    }
+
     const character = getCharacter(characterId);
     let cleaned = response.trim();
 
