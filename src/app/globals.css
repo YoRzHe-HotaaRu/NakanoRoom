@@ -1,0 +1,380 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Zen Kaku Gothic New', system-ui, sans-serif;
+  --font-display: 'Zen Maru Gothic', system-ui, sans-serif;
+
+  /* Base sakura colors */
+  --color-sakura-50: #FFF5F8;
+  --color-sakura-100: #FFEBF0;
+  --color-sakura-200: #FFD6E0;
+  --color-sakura-300: #FFB8CA;
+  --color-sakura-400: #FF8FAB;
+  --color-sakura-500: #FF6B8A;
+  --color-sakura-600: #E84A6F;
+  --color-sakura-700: #C72D52;
+  --color-sakura-800: #A31D3F;
+  --color-sakura-900: #7A1530;
+
+  /* Character colors */
+  --color-ichika: #F8A5C2;
+  --color-ichika-dark: #E08AAB;
+  --color-ichika-light: #FFD0E0;
+
+  --color-nino: #E056A0;
+  --color-nino-dark: #C23D85;
+  --color-nino-light: #F598C8;
+
+  --color-miku: #5B7DB1;
+  --color-miku-dark: #456294;
+  --color-miku-light: #8FAAD4;
+
+  --color-yotsuba: #7EC850;
+  --color-yotsuba-dark: #5FA635;
+  --color-yotsuba-light: #A8E07D;
+
+  --color-itsuki: #E85A71;
+  --color-itsuki-dark: #C73D54;
+  --color-itsuki-light: #FF8A9D;
+
+  /* Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-soft: pulseSoft 3s ease-in-out infinite;
+  --animate-slide-in-left: slideInLeft 0.4s ease-out;
+  --animate-slide-in-right: slideInRight 0.4s ease-out;
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-bounce-in: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes pulseSoft {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes slideInLeft {
+    0% {
+      transform: translateX(-20px);
+      opacity: 0;
+    }
+
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInRight {
+    0% {
+      transform: translateX(20px);
+      opacity: 0;
+    }
+
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0.3);
+      opacity: 0;
+    }
+
+    50% {
+      transform: scale(1.05);
+    }
+
+    70% {
+      transform: scale(0.9);
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes typingBounce {
+
+    0%,
+    80%,
+    100% {
+      transform: scale(0.6);
+      opacity: 0.5;
+    }
+
+    40% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+:root {
+  --background: #FFF5F8;
+  --foreground: #2D1F26;
+  --character-color: #FF6B8A;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: 'Zen Kaku Gothic New';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/zenkakugothicnew/v15/gNMVW2drQpDw0GjzrVNFf_valaDBcznOkjtiTWz5UGA.woff2) format('woff2');
+}
+
+@font-face {
+  font-family: 'Zen Maru Gothic';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/zenmarugothic/v16/o-0XIpIxzW5b-RxT-6A8jWAtCp-k7kpNBENE.woff2) format('woff2');
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 107, 138, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 138, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 138, 0.5);
+}
+
+/* Glass Panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 107, 138, 0.15);
+}
+
+/* Character accent utilities */
+.accent-ichika {
+  --accent: #F8A5C2;
+  --character-color: #F8A5C2;
+}
+
+.accent-nino {
+  --accent: #E056A0;
+  --character-color: #E056A0;
+}
+
+.accent-miku {
+  --accent: #5B7DB1;
+  --character-color: #5B7DB1;
+}
+
+.accent-yotsuba {
+  --accent: #7EC850;
+  --character-color: #7EC850;
+}
+
+.accent-itsuki {
+  --accent: #E85A71;
+  --character-color: #E85A71;
+}
+
+.accent-group {
+  --accent: #FF6B8A;
+  --character-color: #FF6B8A;
+}
+
+/* Sakura Gradient Background */
+.bg-sakura-gradient {
+  background: linear-gradient(135deg, #FFE5EC 0%, #FFF5F8 50%, #FFE8F0 100%);
+}
+
+/* Message bubbles */
+.message-user {
+  background: linear-gradient(to right, var(--color-sakura-400), var(--color-sakura-500));
+  color: white;
+  border-radius: 1rem;
+  border-bottom-right-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+}
+
+.message-character {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border-radius: 1rem;
+  border-bottom-left-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Chat item styling */
+.chat-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chat-item:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.chat-item.active {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 4px 30px rgba(255, 107, 138, 0.15);
+}
+
+.chat-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.25rem;
+  height: 2rem;
+  border-radius: 0 0.25rem 0.25rem 0;
+  background: var(--accent, #FF6B8A);
+}
+
+/* Typing indicator */
+.typing-dots {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.typing-dots span {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-sakura-400);
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+/* Sakura petal decoration */
+.sakura-petal {
+  position: absolute;
+  pointer-events: none;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(ellipse at center, #FFB8CA 0%, #FF8FAB 100%);
+  border-radius: 50% 0 50% 50%;
+  opacity: 0.6;
+}
+
+/* Character panel glow effect */
+.character-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  opacity: 0.3;
+  background: radial-gradient(ellipse at center bottom, var(--character-color) 0%, transparent 60%);
+  filter: blur(40px);
+}
+
+/* Send button */
+.btn-send {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to right, var(--color-sakura-400), var(--color-sakura-500));
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-send:hover {
+  box-shadow: 0 4px 30px rgba(255, 107, 138, 0.15);
+  transform: scale(1.05);
+}
+
+.btn-send:active {
+  transform: scale(0.95);
+}
+
+/* Focus styles */
+input:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-sakura-300);
+}
+
+/* Shadow utilities */
+.shadow-sakura {
+  box-shadow: 0 4px 30px rgba(255, 107, 138, 0.15);
+}
+
+.shadow-sakura-lg {
+  box-shadow: 0 8px 40px rgba(255, 107, 138, 0.25);
+}
+
+.shadow-glass {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
