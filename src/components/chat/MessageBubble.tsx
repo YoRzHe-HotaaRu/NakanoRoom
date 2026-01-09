@@ -10,13 +10,46 @@ import Image from 'next/image';
 
 /**
  * Parse and render markdown-style text formatting
- * Supports: **bold**, *italic*, ~~strikethrough~~, __underline__
+ * Supports: **bold**, *italic*, ~~strikethrough~~, __underline__, > quotes
  */
-function formatMessageContent(content: string): ReactNode {
+function formatMessageContent(content: string, isUserMessage: boolean = false): ReactNode {
     // Handle empty content
     if (!content) return null;
 
-    // Split by formatting patterns and render appropriately
+    // First, check if message starts with a quote block (reply format)
+    // Pattern: > Name: "quoted text"\n\nactual message
+    const quoteMatch = content.match(/^> (.+?): "(.+?)"\n\n([\s\S]*)$/);
+    if (quoteMatch) {
+        const [, quotedName, quotedText, actualMessage] = quoteMatch;
+        return (
+            <>
+                <div
+                    className={`mb-2 pl-2 py-1 border-l-2 ${isUserMessage
+                        ? 'border-white/50 bg-white/10'
+                        : 'border-sakura-300 bg-sakura-50/50'
+                        } rounded-r text-xs`}
+                >
+                    <span className={`font-medium ${isUserMessage ? 'text-white/90' : 'text-sakura-600'}`}>
+                        {quotedName}
+                    </span>
+                    <p className={`italic ${isUserMessage ? 'text-white/70' : 'text-gray-500'} line-clamp-2`}>
+                        "{quotedText}"
+                    </p>
+                </div>
+                <div>{formatInlineStyles(actualMessage)}</div>
+            </>
+        );
+    }
+
+    return formatInlineStyles(content);
+}
+
+/**
+ * Format inline text styles (bold, italic, etc.)
+ */
+function formatInlineStyles(content: string): ReactNode {
+    if (!content) return null;
+
     const parts: ReactNode[] = [];
     let remaining = content;
     let key = 0;
@@ -152,9 +185,9 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                         } : undefined}
                         whileHover={{ scale: 1.01 }}
                     >
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                            {formatMessageContent(message.content)}
-                        </p>
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                            {formatMessageContent(message.content, isUser)}
+                        </div>
                     </motion.div>
                 </ContextMenu>
 
