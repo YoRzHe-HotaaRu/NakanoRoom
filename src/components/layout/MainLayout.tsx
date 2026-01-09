@@ -92,46 +92,34 @@ export function MainLayout() {
     );
 }
 
+// Optimized floating petals using CSS animations (much better performance than JS-based motion)
 function FloatingPetals() {
-    const petalConfigs = [
-        { left: 5, size: 10, duration: 18, delay: 0 },
-        { left: 15, size: 12, duration: 20, delay: 2 },
-        { left: 25, size: 8, duration: 16, delay: 4 },
-        { left: 35, size: 14, duration: 22, delay: 1 },
-        { left: 45, size: 9, duration: 17, delay: 5 },
-        { left: 55, size: 11, duration: 19, delay: 3 },
-        { left: 65, size: 13, duration: 21, delay: 6 },
-        { left: 75, size: 10, duration: 18, delay: 8 },
-        { left: 85, size: 12, duration: 20, delay: 7 },
-        { left: 95, size: 8, duration: 15, delay: 9 },
+    // Reduced to 6 petals for better performance
+    const petals = [
+        { left: 10, delay: 0, duration: 18 },
+        { left: 25, delay: 3, duration: 20 },
+        { left: 45, delay: 6, duration: 16 },
+        { left: 65, delay: 2, duration: 22 },
+        { left: 80, delay: 5, duration: 19 },
+        { left: 92, delay: 8, duration: 17 },
     ];
 
     return (
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-[1]">
-            {petalConfigs.map((config, i) => (
-                <motion.div
+            {petals.map((petal, i) => (
+                <div
                     key={i}
-                    className="absolute text-sakura-300"
+                    className="absolute text-sakura-300 text-sm animate-petal-fall"
                     style={{
-                        left: `${config.left}%`,
-                        top: -20,
-                        fontSize: `${config.size}px`,
-                    }}
-                    animate={{
-                        y: ['0vh', '105vh'],
-                        x: [0, Math.sin(i) * 50, Math.cos(i) * 30, 0],
-                        rotate: [0, 360, 720],
-                    }}
-                    transition={{
-                        duration: config.duration,
-                        repeat: Infinity,
-                        delay: config.delay,
-                        ease: 'linear',
+                        left: `${petal.left}%`,
+                        animationDelay: `${petal.delay}s`,
+                        animationDuration: `${petal.duration}s`,
                     }}
                 >
                     🌸
-                </motion.div>
+                </div>
             ))}
         </div>
     );
 }
+

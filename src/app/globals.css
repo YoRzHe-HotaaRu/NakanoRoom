@@ -137,6 +137,27 @@
       opacity: 1;
     }
   }
+
+  /* Optimized petal falling animation - GPU accelerated */
+  @keyframes petalFall {
+    0% {
+      transform: translate3d(0, -5vh, 0) rotate(0deg);
+      opacity: 0;
+    }
+
+    5% {
+      opacity: 0.7;
+    }
+
+    95% {
+      opacity: 0.7;
+    }
+
+    100% {
+      transform: translate3d(30px, 105vh, 0) rotate(360deg);
+      opacity: 0;
+    }
+  }
 }
 
 :root {
@@ -201,6 +222,12 @@ body {
 
 .safe-area-inset-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Petal falling animation - GPU accelerated */
+.animate-petal-fall {
+  animation: petalFall 18s linear infinite;
+  will-change: transform, opacity;
 }
 
 /* Scrollbar Styling */
