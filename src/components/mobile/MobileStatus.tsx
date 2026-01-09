@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Check, Play } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Check, Play, X, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 
 const videoOptions = [
@@ -11,7 +11,7 @@ const videoOptions = [
         name: 'Opening 1',
         subtitle: 'Gotoubun no Katachi',
         video: '/Asset/Background_Wallpaper/OP1.mp4',
-        thumbnail: '/Asset/NakanoRoom/NakanoRoom.jpg', // Using as placeholder
+        thumbnail: '/Asset/NakanoRoom/NakanoRoom.jpg',
     },
     {
         id: 'op2',
@@ -31,8 +31,18 @@ const videoOptions = [
 
 export function MobileStatus() {
     const [selectedVideo, setSelectedVideo] = useState('op1');
+    const [playingVideo, setPlayingVideo] = useState<string | null>(null);
 
-    // TODO: In future, this could be connected to global state to change the actual background
+    const currentVideo = videoOptions.find(v => v.id === playingVideo);
+
+    const handleVideoClick = (videoId: string) => {
+        setPlayingVideo(videoId);
+        setSelectedVideo(videoId);
+    };
+
+    const closePlayer = () => {
+        setPlayingVideo(null);
+    };
 
     return (
         <div className="h-full flex flex-col bg-white/80 backdrop-blur-sm">
@@ -56,10 +66,10 @@ export function MobileStatus() {
                 {videoOptions.map((option, index) => (
                     <motion.button
                         key={option.id}
-                        onClick={() => setSelectedVideo(option.id)}
+                        onClick={() => handleVideoClick(option.id)}
                         className={`w-full flex items-center gap-4 p-3 rounded-2xl transition-all ${selectedVideo === option.id
-                                ? 'bg-sakura-50 ring-2 ring-sakura-400'
-                                : 'bg-white hover:bg-gray-50'
+                            ? 'bg-sakura-50 ring-2 ring-sakura-400'
+                            : 'bg-white hover:bg-gray-50'
                             }`}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -110,7 +120,7 @@ export function MobileStatus() {
                     transition={{ delay: 0.4 }}
                 >
                     <p className="text-sm text-sakura-700">
-                        💡 <strong>Tip:</strong> The selected opening will play as your animated wallpaper background.
+                        💡 <strong>Tip:</strong> Tap on any opening to watch it in fullscreen.
                         Use the 🔇 button to toggle music on/off.
                     </p>
                 </motion.div>
@@ -122,6 +132,50 @@ export function MobileStatus() {
                     </p>
                 </div>
             </div>
+
+            {/* Fullscreen Video Player */}
+            <AnimatePresence>
+                {playingVideo && currentVideo && (
+                    <motion.div
+                        className="fixed inset-0 z-50 bg-black flex flex-col"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {/* Header */}
+                        <div className="absolute top-0 left-0 right-0 z-10 flex items-center gap-3 p-4 bg-gradient-to-b from-black/80 to-transparent">
+                            <button
+                                onClick={closePlayer}
+                                className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full transition-colors"
+                            >
+                                <ArrowLeft size={24} />
+                            </button>
+                            <div className="flex-1">
+                                <h2 className="font-semibold text-white">{currentVideo.name}</h2>
+                                <p className="text-sm text-white/60">{currentVideo.subtitle}</p>
+                            </div>
+                            <button
+                                onClick={closePlayer}
+                                className="p-2 text-white hover:bg-white/10 rounded-full transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        {/* Video */}
+                        <video
+                            src={currentVideo.video}
+                            className="w-full h-full object-contain"
+                            autoPlay
+                            controls
+                            playsInline
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
+
