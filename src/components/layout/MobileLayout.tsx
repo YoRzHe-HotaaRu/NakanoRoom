@@ -5,18 +5,18 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, Image, Film } from 'lucide-react';
 import { MobileChatList } from '@/components/mobile/MobileChatList';
 import { MobileChatView } from '@/components/mobile/MobileChatView';
-import { MobileAlbumList } from '@/components/mobile/MobileAlbumList';
+import { MobileAlbumList, AlbumId } from '@/components/mobile/MobileAlbumList';
 import { MobileGallery } from '@/components/mobile/MobileGallery';
 import { MobileStatus } from '@/components/mobile/MobileStatus';
 import { VideoBackground } from '@/components/decorations/VideoBackground';
-import { ChatId, CharacterId } from '@/lib/characters';
+import { ChatId } from '@/lib/characters';
 
 type Tab = 'chats' | 'album' | 'status';
 
 export function MobileLayout() {
     const [activeTab, setActiveTab] = useState<Tab>('chats');
     const [activeChat, setActiveChat] = useState<ChatId | null>(null);
-    const [viewingAlbum, setViewingAlbum] = useState<CharacterId | null>(null);
+    const [viewingAlbum, setViewingAlbum] = useState<AlbumId | null>(null);
 
     const tabs = [
         { id: 'chats' as Tab, label: 'Chats', icon: MessageCircle },
@@ -95,8 +95,8 @@ export function MobileLayout() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`flex flex-col items-center gap-1 px-6 py-2 rounded-xl transition-all ${isActive
-                                            ? 'text-sakura-600 bg-sakura-100/50'
-                                            : 'text-gray-500'
+                                        ? 'text-sakura-600 bg-sakura-100/50'
+                                        : 'text-gray-500'
                                         }`}
                                 >
                                     <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />

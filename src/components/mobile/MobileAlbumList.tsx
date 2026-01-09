@@ -4,8 +4,10 @@ import { motion } from 'motion/react';
 import { characters, CharacterId } from '@/lib/characters';
 import Image from 'next/image';
 
+export type AlbumId = CharacterId | 'nakano-memories';
+
 interface MobileAlbumListProps {
-    onSelectCharacter: (characterId: CharacterId) => void;
+    onSelectCharacter: (albumId: AlbumId) => void;
 }
 
 export function MobileAlbumList({ onSelectCharacter }: MobileAlbumListProps) {
@@ -69,20 +71,50 @@ export function MobileAlbumList({ onSelectCharacter }: MobileAlbumListProps) {
                             </div>
                         </motion.button>
                     ))}
-                </div>
 
-                {/* Group/All sisters option */}
-                <motion.button
-                    onClick={() => onSelectCharacter('ichika')} // Default to first for now
-                    className="w-full mt-4 p-4 rounded-2xl bg-gradient-to-r from-sakura-400 to-sakura-500 text-white flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                >
-                    <span className="text-2xl">🌸</span>
-                    <span className="font-semibold">All Quintuplets</span>
-                </motion.button>
+                    {/* Nakano Memories Card */}
+                    <motion.button
+                        onClick={() => onSelectCharacter('nakano-memories')}
+                        className="relative aspect-square rounded-2xl overflow-hidden shadow-lg active:scale-95 transition-transform"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: characterList.length * 0.1 }}
+                        style={{
+                            border: '3px solid #F472B6',
+                            boxShadow: '0 4px 20px rgba(244, 114, 182, 0.4)'
+                        }}
+                    >
+                        <Image
+                            src="/Asset/NakanoRoom/NakanoRoom.jpg"
+                            alt="Nakano Memories"
+                            fill
+                            className="object-cover"
+                        />
+
+                        {/* Gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+                        {/* Name */}
+                        <div className="absolute bottom-0 left-0 right-0 p-3 text-left">
+                            <p className="font-display font-bold text-white text-lg">
+                                Nakano Memories
+                            </p>
+                            <p className="text-white/70 text-xs">
+                                五等分の花嫁
+                            </p>
+                        </div>
+
+                        {/* Emoji badge */}
+                        <div
+                            className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center text-lg"
+                            style={{ backgroundColor: '#F472B6' }}
+                        >
+                            🌸
+                        </div>
+                    </motion.button>
+                </div>
             </div>
         </div>
     );
 }
+

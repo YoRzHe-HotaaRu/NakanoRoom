@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getCharacter, CharacterId } from '@/lib/characters';
+import { AlbumId } from '@/components/mobile/MobileAlbumList';
 import Image from 'next/image';
 
 // Import the same image data structure
@@ -82,8 +83,22 @@ const characterSlideImages: Record<CharacterId, string[]> = {
     ],
 };
 
+// Nakano Memories images
+const nakanoMemoriesImages: string[] = [
+    '/Asset/NakanoRoom/NakanoRoom.jpg',
+    '/Asset/NakanoRoom/NakanoRoom2.jpg',
+    '/Asset/NakanoRoom/NakanoRoom3.jpg',
+    '/Asset/NakanoRoom/NakanoRoom4.jpg',
+    '/Asset/NakanoRoom/NakanoRoom5.jpg',
+    '/Asset/NakanoRoom/NakanoRoom6.jpg',
+    '/Asset/NakanoRoom/NakanoRoom7.jpg',
+    '/Asset/NakanoRoom/NakanoRoom8.jpg',
+    '/Asset/NakanoRoom/NakanoRoom9.png',
+    '/Asset/NakanoRoom/NakanoRoom10.jpg',
+];
+
 interface MobileGalleryProps {
-    characterId: CharacterId;
+    characterId: AlbumId;
     onBack: () => void;
 }
 
@@ -91,8 +106,17 @@ export function MobileGallery({ characterId, onBack }: MobileGalleryProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
 
-    const character = getCharacter(characterId);
-    const images = characterSlideImages[characterId] || [];
+    const isNakanoMemories = characterId === 'nakano-memories';
+    const character = !isNakanoMemories ? getCharacter(characterId) : null;
+    const images = isNakanoMemories
+        ? nakanoMemoriesImages
+        : (characterSlideImages[characterId as CharacterId] || []);
+
+    const albumName = isNakanoMemories ? 'Nakano Memories' : character?.name || '';
+    const albumColor = isNakanoMemories ? '#F472B6' : character?.color || '#F8A5C2';
+    const profileImage = isNakanoMemories
+        ? '/Asset/NakanoRoom/NakanoRoom.jpg'
+        : character?.profilePic || '';
 
     const goNext = () => {
         setDirection(1);
@@ -132,11 +156,11 @@ export function MobileGallery({ characterId, onBack }: MobileGalleryProps) {
 
                 <div
                     className="w-8 h-8 rounded-full overflow-hidden"
-                    style={{ border: `2px solid ${character.color}` }}
+                    style={{ border: `2px solid ${albumColor}` }}
                 >
                     <Image
-                        src={character.profilePic}
-                        alt={character.name}
+                        src={profileImage}
+                        alt={albumName}
                         width={32}
                         height={32}
                         className="w-full h-full object-cover"
@@ -144,7 +168,7 @@ export function MobileGallery({ characterId, onBack }: MobileGalleryProps) {
                 </div>
 
                 <div className="flex-1">
-                    <h2 className="font-semibold text-white">{character.name}</h2>
+                    <h2 className="font-semibold text-white">{albumName}</h2>
                     <p className="text-xs text-white/60">
                         {currentIndex + 1} of {images.length}
                     </p>
@@ -174,7 +198,7 @@ export function MobileGallery({ characterId, onBack }: MobileGalleryProps) {
                     >
                         <Image
                             src={images[currentIndex]}
-                            alt={`${character.name} ${currentIndex + 1}`}
+                            alt={`${albumName} ${currentIndex + 1}`}
                             fill
                             className="object-contain"
                         />
