@@ -60,22 +60,22 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                         {/* Sakura petals */}
                         <SakuraPetals count={30} />
 
-                        {/* Content container */}
-                        <div className="relative z-20 h-full overflow-y-auto">
-                            <div className="min-h-full flex flex-col items-center justify-start px-4 py-8 md:py-12">
+                        {/* Content container - no scroll, fit viewport */}
+                        <div className="relative z-20 h-full overflow-hidden">
+                            <div className="h-full flex flex-col items-center justify-center px-4 py-4 md:py-6">
 
                                 {/* Hero Section */}
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="text-center mb-8 md:mb-12"
+                                            className="text-center mb-4 md:mb-6"
                                             initial={{ opacity: 0, y: -30 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.8, ease: 'easeOut' }}
                                         >
                                             {/* Logo/Icon */}
                                             <motion.div
-                                                className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-sakura-300 shadow-lg"
+                                                className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-2 rounded-full overflow-hidden border-3 border-sakura-300 shadow-lg"
                                                 initial={{ scale: 0, rotate: -180 }}
                                                 animate={{ scale: 1, rotate: 0 }}
                                                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
@@ -91,7 +91,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
 
                                             {/* Title */}
                                             <motion.h1
-                                                className="text-3xl md:text-5xl font-display font-bold mb-2"
+                                                className="text-2xl md:text-4xl font-display font-bold mb-1"
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.4 }}
@@ -104,7 +104,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                             </motion.h1>
 
                                             <motion.p
-                                                className="text-lg md:text-xl text-sakura-400 font-medium"
+                                                className="text-base md:text-lg text-sakura-400 font-medium"
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.6 }}
@@ -128,13 +128,13 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="w-full max-w-4xl mb-8"
+                                            className="w-full max-w-4xl mb-4"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.5 }}
                                         >
                                             <motion.h2
-                                                className="text-center text-xl md:text-2xl font-bold text-gray-700 mb-6"
+                                                className="text-center text-lg md:text-xl font-bold text-gray-700 mb-3"
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.7 }}
@@ -156,12 +156,12 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="w-full max-w-2xl mb-8"
+                                            className="w-full max-w-2xl mb-4"
                                             initial={{ opacity: 0, y: 30 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 1.5 }}
                                         >
-                                            <h2 className="text-center text-xl md:text-2xl font-bold text-gray-700 mb-4">
+                                            <h2 className="text-center text-lg md:text-xl font-bold text-gray-700 mb-3">
                                                 Features ✨
                                             </h2>
 
@@ -194,7 +194,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="mt-4 mb-8"
+                                            className="mt-2 mb-4"
                                             initial={{ opacity: 0, scale: 0 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: 2, type: 'spring', stiffness: 200 }}
