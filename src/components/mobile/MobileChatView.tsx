@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Send, Smile } from 'lucide-react';
 import { useChatStore, Message } from '@/store/chatStore';
@@ -8,6 +8,49 @@ import { chatRooms, getCharacter, CharacterId, ChatId } from '@/lib/characters';
 import { getApiUrl } from '@/lib/api-config';
 import Image from 'next/image';
 import { useState } from 'react';
+
+/**
+ * Parse and render markdown-style text formatting
+ * Supports: **bold**, *italic*, ~~strikethrough~~, __underline__
+ */
+function formatMessageContent(content: string): ReactNode {
+    if (!content) return null;
+
+    const parts: ReactNode[] = [];
+    let remaining = content;
+    let key = 0;
+
+    const patterns: { regex: RegExp; render: (text: string) => ReactNode }[] = [
+        { regex: /\*\*(.+?)\*\*/, render: (t) => <strong key={key++} className="font-bold">{t}</strong> },
+        { regex: /~~(.+?)~~/, render: (t) => <del key={key++} className="line-through">{t}</del> },
+        { regex: /__(.+?)__/, render: (t) => <u key={key++} className="underline">{t}</u> },
+        { regex: /\*(.+?)\*/, render: (t) => <em key={key++} className="italic">{t}</em> },
+    ];
+
+    while (remaining.length > 0) {
+        let earliestMatch: { index: number; length: number; rendered: ReactNode } | null = null;
+
+        for (const { regex, render } of patterns) {
+            const match = remaining.match(regex);
+            if (match && match.index !== undefined) {
+                if (!earliestMatch || match.index < earliestMatch.index) {
+                    earliestMatch = { index: match.index, length: match[0].length, rendered: render(match[1]) };
+                }
+            }
+        }
+
+        if (earliestMatch) {
+            if (earliestMatch.index > 0) parts.push(remaining.substring(0, earliestMatch.index));
+            parts.push(earliestMatch.rendered);
+            remaining = remaining.substring(earliestMatch.index + earliestMatch.length);
+        } else {
+            parts.push(remaining);
+            break;
+        }
+    }
+
+    return parts.length > 0 ? parts : content;
+}
 
 interface MobileChatViewProps {
     chatId: ChatId;
@@ -283,7 +326,7 @@ function MobileMessageBubble({ message, index }: { message: Message; index: numb
                         }`}
                     style={!isUser && character ? { borderLeft: `3px solid ${character.color}` } : undefined}
                 >
-                    {message.content}
+                    {formatMessageContent(message.content)}
                 </div>
             </div>
         </motion.div>

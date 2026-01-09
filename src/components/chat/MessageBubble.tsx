@@ -3,8 +3,68 @@
 import { motion } from 'motion/react';
 import { Message } from '@/store/chatStore';
 import { getCharacter, CharacterId } from '@/lib/characters';
-import { useMemo } from 'react';
+import { useMemo, ReactNode } from 'react';
 import Image from 'next/image';
+
+/**
+ * Parse and render markdown-style text formatting
+ * Supports: **bold**, *italic*, ~~strikethrough~~, __underline__
+ */
+function formatMessageContent(content: string): ReactNode {
+    // Handle empty content
+    if (!content) return null;
+
+    // Split by formatting patterns and render appropriately
+    const parts: ReactNode[] = [];
+    let remaining = content;
+    let key = 0;
+
+    // Regex patterns (order matters - check longer patterns first)
+    const patterns: { regex: RegExp; render: (text: string) => ReactNode }[] = [
+        // Bold: **text**
+        { regex: /\*\*(.+?)\*\*/, render: (t) => <strong key={key++} className="font-bold">{t}</strong> },
+        // Strikethrough: ~~text~~
+        { regex: /~~(.+?)~~/, render: (t) => <del key={key++} className="line-through">{t}</del> },
+        // Underline: __text__
+        { regex: /__(.+?)__/, render: (t) => <u key={key++} className="underline">{t}</u> },
+        // Italic: *text* (single asterisk)
+        { regex: /\*(.+?)\*/, render: (t) => <em key={key++} className="italic">{t}</em> },
+    ];
+
+    while (remaining.length > 0) {
+        let earliestMatch: { index: number; length: number; rendered: ReactNode } | null = null;
+
+        for (const { regex, render } of patterns) {
+            const match = remaining.match(regex);
+            if (match && match.index !== undefined) {
+                if (!earliestMatch || match.index < earliestMatch.index) {
+                    earliestMatch = {
+                        index: match.index,
+                        length: match[0].length,
+                        rendered: render(match[1]),
+                    };
+                }
+            }
+        }
+
+        if (earliestMatch) {
+            // Add text before the match
+            if (earliestMatch.index > 0) {
+                parts.push(remaining.substring(0, earliestMatch.index));
+            }
+            // Add the formatted element
+            parts.push(earliestMatch.rendered);
+            // Continue with remaining text
+            remaining = remaining.substring(earliestMatch.index + earliestMatch.length);
+        } else {
+            // No more matches, add remaining text
+            parts.push(remaining);
+            break;
+        }
+    }
+
+    return parts.length > 0 ? parts : content;
+}
 
 interface MessageBubbleProps {
     message: Message;
@@ -81,7 +141,7 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                     whileHover={{ scale: 1.01 }}
                 >
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {message.content}
+                        {formatMessageContent(message.content)}
                     </p>
                 </motion.div>
 
