@@ -82,7 +82,7 @@ Whether you want to talk about history with Miku, get cooking tips from Nino, or
 <sub>The Energetic Helper</sub>
 </td>
 <td align="center" width="20%">
-<img src="public/Asset/ProfilePic/Itsuki.png" alt="Itsuki" width="100" style="border-radius: 50%"/><br/>
+<img src="public/Asset/ProfilePic/Itsuki.jpg" alt="Itsuki" width="100" style="border-radius: 50%"/><br/>
 <b>⭐ Itsuki</b><br/>
 <sub>The Studious Foodie</sub>
 </td>
