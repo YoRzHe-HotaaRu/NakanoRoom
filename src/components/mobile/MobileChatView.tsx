@@ -63,9 +63,14 @@ interface ChatResponse {
     isReaction: boolean;
 }
 
+// Quick emoji options for mobile
+const quickEmojis = ['🌸', '❤️', '😊', '😂', '🥺', '✨', '💕', '👍', '(◕‿◕)', '(*´▽`*)'];
+
 export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
     const [message, setMessage] = useState('');
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const { messages, addMessage, setLoading, isLoading, setTypingCharacters, typingCharacters } = useChatStore();
     const chatMessages = messages[chatId] || [];
@@ -259,15 +264,48 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
 
             {/* Input */}
             <div className="p-3 border-t border-sakura-200/30 bg-white/90">
+                {/* Emoji picker row */}
+                <AnimatePresence>
+                    {showEmojiPicker && (
+                        <motion.div
+                            className="flex gap-1 pb-2 overflow-x-auto scrollbar-hide"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                        >
+                            {quickEmojis.map((emoji, idx) => (
+                                <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => {
+                                        setMessage(prev => prev + emoji);
+                                        inputRef.current?.focus();
+                                    }}
+                                    className="flex-shrink-0 px-3 py-1.5 bg-sakura-50 hover:bg-sakura-100 rounded-full text-sm transition-colors"
+                                >
+                                    {emoji}
+                                </button>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <div className="flex items-center gap-2">
-                    <button className="p-2 text-sakura-400">
+                    <button
+                        type="button"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${showEmojiPicker ? 'text-sakura-600 bg-sakura-100' : 'text-sakura-400'
+                            }`}
+                    >
                         <Smile size={22} />
                     </button>
                     <input
+                        ref={inputRef}
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                        onFocus={() => setShowEmojiPicker(false)}
                         placeholder="Type a message..."
                         className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sakura-300"
                         disabled={loading}
@@ -275,7 +313,7 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
                     <button
                         onClick={handleSend}
                         disabled={!message.trim() || loading}
-                        className="p-2 bg-sakura-500 text-white rounded-full disabled:opacity-50"
+                        className="flex items-center justify-center w-10 h-10 bg-sakura-500 text-white rounded-full disabled:opacity-50"
                     >
                         <Send size={18} />
                     </button>
