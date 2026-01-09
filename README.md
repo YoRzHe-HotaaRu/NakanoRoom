@@ -35,6 +35,9 @@ Whether you want to talk about history with Miku, get cooking tips from Nino, or
 
 <div align="center">
 
+### Welcome Screen
+<img src="public/Asset/Screenshot/WelcomeScreen.png" alt="Welcome Screen" width="700"/>
+
 ### Desktop View - Group Chat
 <img src="public/Asset/Screenshot/1.png" alt="Group Chat" width="700"/>
 
