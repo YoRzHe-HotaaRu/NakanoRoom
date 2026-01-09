@@ -60,22 +60,22 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                         {/* Sakura petals */}
                         <SakuraPetals count={30} />
 
-                        {/* Content container - no scroll, fit viewport */}
-                        <div className="relative z-20 h-full overflow-hidden">
-                            <div className="h-full flex flex-col items-center justify-center px-4 py-4 md:py-6">
+                        {/* Content container - scrollable on mobile, fit viewport on desktop */}
+                        <div className="relative z-20 h-full overflow-y-auto md:overflow-hidden">
+                            <div className="min-h-full md:h-full flex flex-col items-center justify-start md:justify-center px-4 py-6 md:py-6">
 
                                 {/* Hero Section */}
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="text-center mb-5 md:mb-8"
+                                            className="text-center mb-5 md:mb-10"
                                             initial={{ opacity: 0, y: -30 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.8, ease: 'easeOut' }}
                                         >
                                             {/* Logo/Icon */}
                                             <motion.div
-                                                className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-3 border-sakura-300 shadow-lg"
+                                                className="w-20 h-20 md:w-32 md:h-32 mx-auto mb-3 rounded-full overflow-hidden border-3 md:border-4 border-sakura-300 shadow-lg"
                                                 initial={{ scale: 0, rotate: -180 }}
                                                 animate={{ scale: 1, rotate: 0 }}
                                                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
@@ -91,7 +91,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
 
                                             {/* Title */}
                                             <motion.h1
-                                                className="text-2xl md:text-4xl font-display font-bold mb-1"
+                                                className="text-2xl md:text-5xl font-display font-bold mb-1 md:mb-2"
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.4 }}
@@ -104,7 +104,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                             </motion.h1>
 
                                             <motion.p
-                                                className="text-base md:text-lg text-sakura-400 font-medium"
+                                                className="text-base md:text-xl text-sakura-400 font-medium"
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.6 }}
@@ -120,6 +120,18 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                             >
                                                 Welcome to Nakano Room – your cozy corner to hang out with the five adorable Nakano sisters!
                                             </motion.p>
+
+                                            {/* Mobile-only Enter button - shown at top */}
+                                            <motion.button
+                                                onClick={handleEnter}
+                                                className="md:hidden mt-4 px-6 py-3 bg-gradient-to-r from-sakura-400 via-pink-500 to-sakura-500 text-white font-bold text-base rounded-full shadow-lg"
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                transition={{ delay: 0.9 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                Enter the Nakano Room →
+                                            </motion.button>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -128,13 +140,13 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="w-full max-w-4xl mb-4"
+                                            className="w-full max-w-5xl mb-4 md:mb-6"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.5 }}
                                         >
                                             <motion.h2
-                                                className="text-center text-lg md:text-xl font-bold text-gray-700 mb-4"
+                                                className="text-center text-lg md:text-2xl font-bold text-gray-700 mb-4 md:mb-5"
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.7 }}
@@ -156,12 +168,12 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="w-full max-w-2xl mb-4"
+                                            className="w-full max-w-3xl mb-4 md:mb-6"
                                             initial={{ opacity: 0, y: 30 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 1.5 }}
                                         >
-                                            <h2 className="text-center text-lg md:text-xl font-bold text-gray-700 mb-3">
+                                            <h2 className="text-center text-lg md:text-2xl font-bold text-gray-700 mb-3 md:mb-4">
                                                 Features ✨
                                             </h2>
 
@@ -190,11 +202,11 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                     )}
                                 </AnimatePresence>
 
-                                {/* Enter Button */}
+                                {/* Enter Button - desktop only (mobile has button at top) */}
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="mt-2 mb-4"
+                                            className="hidden md:block mt-2 mb-4"
                                             initial={{ opacity: 0, scale: 0 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: 2, type: 'spring', stiffness: 200 }}
