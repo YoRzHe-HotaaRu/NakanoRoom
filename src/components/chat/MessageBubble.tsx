@@ -176,20 +176,31 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                     </span>
                 )}
 
-                {/* Bubble with context menu */}
-                <ContextMenu items={contextMenuItems}>
+                {/* Bubble - with context menu for character messages only */}
+                {!isUser ? (
+                    <ContextMenu items={contextMenuItems}>
+                        <motion.div
+                            className="message-character"
+                            style={character ? {
+                                borderLeft: `3px solid ${character.color}`,
+                            } : undefined}
+                            whileHover={{ scale: 1.01 }}
+                        >
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                                {formatMessageContent(message.content, isUser)}
+                            </div>
+                        </motion.div>
+                    </ContextMenu>
+                ) : (
                     <motion.div
-                        className={isUser ? 'message-user' : 'message-character'}
-                        style={!isUser && character ? {
-                            borderLeft: `3px solid ${character.color}`,
-                        } : undefined}
+                        className="message-user"
                         whileHover={{ scale: 1.01 }}
                     >
                         <div className="text-sm leading-relaxed whitespace-pre-wrap">
                             {formatMessageContent(message.content, isUser)}
                         </div>
                     </motion.div>
-                </ContextMenu>
+                )}
 
                 {/* Timestamp */}
                 <span className="text-[10px] text-gray-400 mt-1 px-1">

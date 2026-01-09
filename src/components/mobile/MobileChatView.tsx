@@ -407,14 +407,15 @@ function MobileMessageBubble({ message, index }: { message: Message; index: numb
                     >
                         {formatMessageContent(message.content, isUser)}
                     </div>
-                    {/* Reply button */}
-                    <button
-                        onClick={() => setReplyToMessage(message)}
-                        className={`absolute -bottom-2 p-1.5 bg-white rounded-full shadow-md border border-gray-100 transition-all active:scale-95 ${isUser ? '-left-2' : '-right-2'
-                            }`}
-                    >
-                        <Reply size={12} className="text-gray-400" />
-                    </button>
+                    {/* Reply button - only for character messages */}
+                    {!isUser && (
+                        <button
+                            onClick={() => setReplyToMessage(message)}
+                            className="absolute -bottom-2 -right-2 p-1.5 bg-white rounded-full shadow-md border border-gray-100 transition-all active:scale-95"
+                        >
+                            <Reply size={12} className="text-gray-400" />
+                        </button>
+                    )}
                 </div>
             </div>
         </motion.div>
