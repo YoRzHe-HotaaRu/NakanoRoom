@@ -56,6 +56,15 @@ function formatInlineStyles(content: string): ReactNode {
 
     // Regex patterns (order matters - check longer patterns first)
     const patterns: { regex: RegExp; render: (text: string) => ReactNode }[] = [
+        // Attachment indicator: [📎 filename]
+        {
+            regex: /\[📎 (.+?)\]/,
+            render: (t) => (
+                <span key={key++} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium">
+                    📎 {t}
+                </span>
+            )
+        },
         // Bold: **text**
         { regex: /\*\*(.+?)\*\*/, render: (t) => <strong key={key++} className="font-bold">{t}</strong> },
         // Strikethrough: ~~text~~

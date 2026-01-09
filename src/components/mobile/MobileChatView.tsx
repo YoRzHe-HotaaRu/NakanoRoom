@@ -17,11 +17,54 @@ import { useState } from 'react';
 function formatMessageContent(content: string, isUserMessage: boolean = false): ReactNode {
     if (!content) return null;
 
+    // First, check if message starts with a quote block (reply format)
+    // Pattern: > Name: "quoted text"\n\nactual message
+    const quoteMatch = content.match(/^> (.+?): "(.+?)"\n\n([\s\S]*)$/);
+    if (quoteMatch) {
+        const [, quotedName, quotedText, actualMessage] = quoteMatch;
+        return (
+            <>
+                <div
+                    className={`mb-2 pl-2 py-1 border-l-2 ${isUserMessage
+                        ? 'border-white/50 bg-white/10'
+                        : 'border-sakura-300 bg-sakura-50/50'
+                        } rounded-r text-xs`}
+                >
+                    <span className={`font-medium ${isUserMessage ? 'text-white/90' : 'text-sakura-600'}`}>
+                        {quotedName}
+                    </span>
+                    <p className={`italic ${isUserMessage ? 'text-white/70' : 'text-gray-500'} line-clamp-2`}>
+                        "{quotedText}"
+                    </p>
+                </div>
+                <div>{formatInlineStyles(actualMessage)}</div>
+            </>
+        );
+    }
+
+    return formatInlineStyles(content);
+}
+
+/**
+ * Format inline text styles (bold, italic, etc.)
+ */
+function formatInlineStyles(content: string): ReactNode {
+    if (!content) return null;
+
     const parts: ReactNode[] = [];
     let remaining = content;
     let key = 0;
 
     const patterns: { regex: RegExp; render: (text: string) => ReactNode }[] = [
+        // Attachment indicator: [📎 filename]
+        {
+            regex: /\[📎 (.+?)\]/,
+            render: (t) => (
+                <span key={key++} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium">
+                    📎 {t}
+                </span>
+            )
+        },
         { regex: /\*\*(.+?)\*\*/, render: (t) => <strong key={key++} className="font-bold">{t}</strong> },
         { regex: /~~(.+?)~~/, render: (t) => <del key={key++} className="line-through">{t}</del> },
         { regex: /__(.+?)__/, render: (t) => <u key={key++} className="underline">{t}</u> },
