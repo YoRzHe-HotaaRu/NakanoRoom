@@ -14,7 +14,7 @@
     "test:e2e:ui": "playwright test --ui",
     "cap:sync": "npx cap sync",
     "cap:open": "npx cap open android",
-    "mobile:build": "npm run build && npm run cap:sync"
+    "mobile:build": "set STATIC_EXPORT=true && npm run build && npm run cap:sync"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
