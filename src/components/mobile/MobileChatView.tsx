@@ -110,7 +110,7 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
     return (
         <div className="h-full flex flex-col bg-white/80 backdrop-blur-sm">
             {/* Header */}
-            <header className="flex items-center gap-3 p-3 border-b border-sakura-200/30 bg-white/90">
+            <header className="flex items-center gap-3 p-3 pt-[calc(0.75rem+env(safe-area-inset-top))] border-b border-sakura-200/30 bg-white/90">
                 <button
                     onClick={onBack}
                     className="p-2 -ml-2 text-sakura-600 hover:bg-sakura-50 rounded-full"

@@ -144,7 +144,7 @@ export function MobileStatus() {
                         transition={{ duration: 0.3 }}
                     >
                         {/* Header */}
-                        <div className="absolute top-0 left-0 right-0 z-10 flex items-center gap-3 p-4 bg-gradient-to-b from-black/80 to-transparent">
+                        <div className="absolute top-0 left-0 right-0 z-10 flex items-center gap-3 p-4 pt-[calc(1rem+env(safe-area-inset-top))] bg-gradient-to-b from-black/80 to-transparent">
                             <button
                                 onClick={closePlayer}
                                 className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full transition-colors"

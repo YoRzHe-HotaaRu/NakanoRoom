@@ -146,7 +146,7 @@ export function MobileGallery({ characterId, onBack }: MobileGalleryProps) {
     return (
         <div className="h-full flex flex-col bg-black">
             {/* Header */}
-            <header className="flex items-center gap-3 p-3 bg-black/80 relative z-10">
+            <header className="flex items-center gap-3 p-3 pt-[calc(0.75rem+env(safe-area-inset-top))] bg-black/80 relative z-10">
                 <button
                     onClick={onBack}
                     className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full"
