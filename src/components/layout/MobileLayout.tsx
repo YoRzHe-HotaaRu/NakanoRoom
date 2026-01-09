@@ -57,7 +57,7 @@ export function MobileLayout() {
     };
 
     return (
-        <div className="h-screen w-screen flex flex-col overflow-hidden">
+        <div className="h-screen-safe w-screen flex flex-col overflow-hidden">
             {/* Video Background */}
             <VideoBackground />
 

@@ -47,7 +47,7 @@ export function MobileStatus() {
     return (
         <div className="h-full flex flex-col bg-white/80 backdrop-blur-sm">
             {/* Header */}
-            <header className="p-4 border-b border-sakura-200/30 bg-white/90">
+            <header className="p-4 pt-[calc(1rem+env(safe-area-inset-top))] border-b border-sakura-200/30 bg-white/90">
                 <h1 className="font-display text-xl font-bold text-sakura-600 flex items-center gap-2">
                     <span>🎬</span>
                     Status
