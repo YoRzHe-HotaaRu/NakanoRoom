@@ -343,14 +343,17 @@ export function ChatInput({ onSend }: ChatInputProps) {
                             ))}
                         </div>
 
-                        {/* Emoji Grid */}
-                        <div className="p-2 grid grid-cols-5 gap-1 max-h-40 overflow-y-auto">
+                        {/* Emoji Grid - 2 cols for kaomoji (wider text), 5 cols for emoji */}
+                        <div className={`p-2 grid gap-1 max-h-40 overflow-y-auto ${activeEmojiCategory === 0 ? 'grid-cols-2' : 'grid-cols-5'}`}>
                             {emojiCategories[activeEmojiCategory].emojis.map((emoji, idx) => (
                                 <button
                                     key={idx}
                                     type="button"
                                     onClick={() => insertEmoji(emoji)}
-                                    className="p-2 hover:bg-sakura-50 rounded-lg text-lg transition-colors text-center"
+                                    className={`hover:bg-sakura-50 rounded-lg transition-colors text-center ${activeEmojiCategory === 0
+                                            ? 'p-2 text-sm whitespace-nowrap'
+                                            : 'p-2 text-lg'
+                                        }`}
                                 >
                                     {emoji}
                                 </button>
@@ -361,19 +364,20 @@ export function ChatInput({ onSend }: ChatInputProps) {
             </AnimatePresence>
 
             <div className="flex items-end gap-2">
-                {/* Emoji button */}
+                {/* Emoji button - using onPointerDown for better mobile support */}
                 <motion.button
                     type="button"
-                    onClick={() => {
+                    onPointerDown={(e) => {
+                        e.preventDefault();
                         setShowEmojiPicker(!showEmojiPicker);
                         setShowMentions(false);
                     }}
-                    className={`p-2 transition-colors rounded-lg ${showEmojiPicker
+                    className={`flex items-center justify-center w-10 h-10 transition-colors rounded-xl ${showEmojiPicker
                         ? 'text-sakura-600 bg-sakura-100'
                         : 'text-sakura-400 hover:text-sakura-600 hover:bg-sakura-100/50'
                         }`}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     aria-label="Add emoji"
                 >
                     <Smile size={20} />
