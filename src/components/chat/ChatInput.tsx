@@ -2,9 +2,9 @@
 
 import { useState, useRef, useEffect, FormEvent, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, Smile, X } from 'lucide-react';
+import { Send, Smile, X, Reply } from 'lucide-react';
 import { useChatStore, useIsLoading } from '@/store/chatStore';
-import { characters, CharacterId } from '@/lib/characters';
+import { characters, CharacterId, getCharacter } from '@/lib/characters';
 
 interface ChatInputProps {
     onSend: (message: string) => void;
@@ -60,6 +60,13 @@ export function ChatInput({ onSend }: ChatInputProps) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
     const isLoading = useIsLoading();
+    const replyToMessage = useChatStore((state) => state.replyToMessage);
+    const setReplyToMessage = useChatStore((state) => state.setReplyToMessage);
+
+    // Get reply character info
+    const replyCharacter = replyToMessage?.characterId
+        ? getCharacter(replyToMessage.characterId)
+        : null;
 
     // Filter mention options based on what user typed after @
     const filteredMentions = mentionOptions.filter(opt =>
@@ -89,6 +96,13 @@ export function ChatInput({ onSend }: ChatInputProps) {
     useEffect(() => {
         setSelectedIndex(0);
     }, [mentionFilter]);
+
+    // Focus input when starting a reply
+    useEffect(() => {
+        if (replyToMessage) {
+            textareaRef.current?.focus();
+        }
+    }, [replyToMessage]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newValue = e.target.value;
@@ -149,7 +163,11 @@ export function ChatInput({ onSend }: ChatInputProps) {
     const handleSubmit = (e?: FormEvent) => {
         e?.preventDefault();
         if (message.trim() && !isLoading) {
-            onSend(message.trim());
+            // If replying, prepend the reply context
+            const finalMessage = replyToMessage
+                ? `> ${replyCharacter?.name || 'You'}: "${replyToMessage.content.slice(0, 50)}${replyToMessage.content.length > 50 ? '...' : ''}"\n\n${message.trim()}`
+                : message.trim();
+            onSend(finalMessage);
             setMessage('');
             setShowMentions(false);
             setShowEmojiPicker(false);
@@ -186,6 +204,13 @@ export function ChatInput({ onSend }: ChatInputProps) {
             }
         }
 
+        // Cancel reply on Escape
+        if (e.key === 'Escape' && replyToMessage) {
+            e.preventDefault();
+            setReplyToMessage(null);
+            return;
+        }
+
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSubmit();
@@ -200,6 +225,36 @@ export function ChatInput({ onSend }: ChatInputProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
         >
+            {/* Reply Preview */}
+            <AnimatePresence>
+                {replyToMessage && (
+                    <motion.div
+                        className="flex items-center gap-2 mb-2 px-3 py-2 bg-sakura-50 rounded-lg border-l-3"
+                        style={{ borderLeftColor: replyCharacter?.color || '#FF6B8A' }}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                    >
+                        <Reply size={14} className="text-sakura-500 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium" style={{ color: replyCharacter?.color || '#FF6B8A' }}>
+                                Replying to {replyCharacter?.name || 'yourself'}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                                {replyToMessage.content.slice(0, 60)}{replyToMessage.content.length > 60 ? '...' : ''}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setReplyToMessage(null)}
+                            className="p-1 hover:bg-sakura-100 rounded-full transition-colors"
+                        >
+                            <X size={14} className="text-gray-400" />
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Mention Autocomplete Dropdown */}
             <AnimatePresence>
                 {showMentions && filteredMentions.length > 0 && (
@@ -219,8 +274,8 @@ export function ChatInput({ onSend }: ChatInputProps) {
                                     key={option.id}
                                     type="button"
                                     className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors ${index === selectedIndex
-                                            ? 'bg-sakura-100'
-                                            : 'hover:bg-sakura-50'
+                                        ? 'bg-sakura-100'
+                                        : 'hover:bg-sakura-50'
                                         }`}
                                     onClick={() => insertMention(option)}
                                     onMouseEnter={() => setSelectedIndex(index)}
@@ -279,8 +334,8 @@ export function ChatInput({ onSend }: ChatInputProps) {
                                     type="button"
                                     onClick={() => setActiveEmojiCategory(idx)}
                                     className={`px-2 py-1.5 text-xs transition-colors ${activeEmojiCategory === idx
-                                            ? 'text-sakura-600 border-b-2 border-sakura-500'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                        ? 'text-sakura-600 border-b-2 border-sakura-500'
+                                        : 'text-gray-500 hover:text-gray-700'
                                         }`}
                                 >
                                     {cat.name}
@@ -314,8 +369,8 @@ export function ChatInput({ onSend }: ChatInputProps) {
                         setShowMentions(false);
                     }}
                     className={`p-2 transition-colors rounded-lg ${showEmojiPicker
-                            ? 'text-sakura-600 bg-sakura-100'
-                            : 'text-sakura-400 hover:text-sakura-600 hover:bg-sakura-100/50'
+                        ? 'text-sakura-600 bg-sakura-100'
+                        : 'text-sakura-400 hover:text-sakura-600 hover:bg-sakura-100/50'
                         }`}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}

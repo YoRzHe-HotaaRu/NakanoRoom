@@ -1,9 +1,11 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { Message } from '@/store/chatStore';
+import { Message, useChatStore } from '@/store/chatStore';
 import { getCharacter, CharacterId } from '@/lib/characters';
 import { useMemo, ReactNode } from 'react';
+import { ContextMenu } from '@/components/ui/ContextMenu';
+import { Reply } from 'lucide-react';
 import Image from 'next/image';
 
 /**
@@ -74,6 +76,7 @@ interface MessageBubbleProps {
 export function MessageBubble({ message, index }: MessageBubbleProps) {
     const isUser = message.role === 'user';
     const character = message.characterId ? getCharacter(message.characterId) : null;
+    const setReplyToMessage = useChatStore((state) => state.setReplyToMessage);
 
     const formattedTime = useMemo(() => {
         return new Date(message.timestamp).toLocaleTimeString([], {
@@ -82,6 +85,14 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
             hour12: true
         });
     }, [message.timestamp]);
+
+    const contextMenuItems = [
+        {
+            label: 'Reply',
+            icon: <Reply size={14} />,
+            onClick: () => setReplyToMessage(message),
+        },
+    ];
 
     return (
         <motion.div
@@ -132,18 +143,20 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                     </span>
                 )}
 
-                {/* Bubble */}
-                <motion.div
-                    className={isUser ? 'message-user' : 'message-character'}
-                    style={!isUser && character ? {
-                        borderLeft: `3px solid ${character.color}`,
-                    } : undefined}
-                    whileHover={{ scale: 1.01 }}
-                >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {formatMessageContent(message.content)}
-                    </p>
-                </motion.div>
+                {/* Bubble with context menu */}
+                <ContextMenu items={contextMenuItems}>
+                    <motion.div
+                        className={isUser ? 'message-user' : 'message-character'}
+                        style={!isUser && character ? {
+                            borderLeft: `3px solid ${character.color}`,
+                        } : undefined}
+                        whileHover={{ scale: 1.01 }}
+                    >
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                            {formatMessageContent(message.content)}
+                        </p>
+                    </motion.div>
+                </ContextMenu>
 
                 {/* Timestamp */}
                 <span className="text-[10px] text-gray-400 mt-1 px-1">

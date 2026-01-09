@@ -3,10 +3,12 @@
 import { motion } from 'motion/react';
 import { useChatStore } from '@/store/chatStore';
 import { chatRooms, ChatId, getCharacter, CharacterId } from '@/lib/characters';
+import { ContextMenu } from '@/components/ui/ContextMenu';
+import { Trash2 } from 'lucide-react';
 import Image from 'next/image';
 
 export function ChatSidebar() {
-    const { activeChat, setActiveChat } = useChatStore();
+    const { activeChat, setActiveChat, clearChat } = useChatStore();
 
     return (
         <aside className="w-72 h-full glass-panel flex flex-col overflow-hidden">
@@ -27,17 +29,28 @@ export function ChatSidebar() {
             {/* Chat List */}
             <nav className="flex-1 overflow-y-auto p-3 space-y-1">
                 {chatRooms.map((room, index) => (
-                    <ChatItem
+                    <ContextMenu
                         key={room.id}
-                        id={room.id}
-                        name={room.name}
-                        emoji={room.emoji}
-                        description={room.description}
-                        colorClass={room.colorClass}
-                        isActive={activeChat === room.id}
-                        onClick={() => setActiveChat(room.id)}
-                        index={index}
-                    />
+                        items={[
+                            {
+                                label: 'Clear Chat',
+                                icon: <Trash2 size={14} />,
+                                onClick: () => clearChat(room.id),
+                                danger: true,
+                            },
+                        ]}
+                    >
+                        <ChatItem
+                            id={room.id}
+                            name={room.name}
+                            emoji={room.emoji}
+                            description={room.description}
+                            colorClass={room.colorClass}
+                            isActive={activeChat === room.id}
+                            onClick={() => setActiveChat(room.id)}
+                            index={index}
+                        />
+                    </ContextMenu>
                 ))}
             </nav>
 
@@ -124,3 +137,4 @@ function ChatItem({
         </motion.button>
     );
 }
+

@@ -25,11 +25,15 @@ export interface ChatState {
     // Typing characters (for showing typing indicator)
     typingCharacters: CharacterId[];
 
+    // Message being replied to
+    replyToMessage: Message | null;
+
     // Actions
     setActiveChat: (chatId: ChatId) => void;
     addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => Message;
     setLoading: (chatId: ChatId, loading: boolean) => void;
     setTypingCharacters: (characters: CharacterId[]) => void;
+    setReplyToMessage: (message: Message | null) => void;
     clearChat: (chatId: ChatId) => void;
     clearAllChats: () => void;
 
@@ -63,9 +67,10 @@ export const useChatStore = create<ChatState>()(
             messages: { ...initialMessages },
             isLoading: { ...initialLoading },
             typingCharacters: [],
+            replyToMessage: null,
 
             setActiveChat: (chatId) => {
-                set({ activeChat: chatId });
+                set({ activeChat: chatId, replyToMessage: null });
             },
 
             addMessage: (messageData) => {
@@ -80,6 +85,7 @@ export const useChatStore = create<ChatState>()(
                         ...state.messages,
                         [messageData.chatId]: [...(state.messages[messageData.chatId] || []), message],
                     },
+                    replyToMessage: null, // Clear reply after sending
                 }));
 
                 return message;
@@ -96,6 +102,10 @@ export const useChatStore = create<ChatState>()(
 
             setTypingCharacters: (characters) => {
                 set({ typingCharacters: characters });
+            },
+
+            setReplyToMessage: (message) => {
+                set({ replyToMessage: message });
             },
 
             clearChat: (chatId) => {
