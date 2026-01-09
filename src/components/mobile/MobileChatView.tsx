@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useCallback, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Send, Smile } from 'lucide-react';
+import { ArrowLeft, Send, Smile, Reply, X } from 'lucide-react';
 import { useChatStore, Message } from '@/store/chatStore';
 import { chatRooms, getCharacter, CharacterId, ChatId } from '@/lib/characters';
 import { getApiUrl } from '@/lib/api-config';
@@ -11,9 +11,9 @@ import { useState } from 'react';
 
 /**
  * Parse and render markdown-style text formatting
- * Supports: **bold**, *italic*, ~~strikethrough~~, __underline__
+ * Supports: **bold**, *italic*, ~~strikethrough~~, __underline__, > quotes
  */
-function formatMessageContent(content: string): ReactNode {
+function formatMessageContent(content: string, isUserMessage: boolean = false): ReactNode {
     if (!content) return null;
 
     const parts: ReactNode[] = [];
@@ -72,7 +72,7 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const { messages, addMessage, setLoading, isLoading, setTypingCharacters, typingCharacters } = useChatStore();
+    const { messages, addMessage, setLoading, isLoading, setTypingCharacters, typingCharacters, replyToMessage, setReplyToMessage } = useChatStore();
     const chatMessages = messages[chatId] || [];
     const loading = isLoading[chatId] || false;
     const typing = typingCharacters || [];
@@ -80,6 +80,11 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
     const room = chatRooms.find(r => r.id === chatId);
     const isGroup = chatId === 'group';
     const character = !isGroup ? getCharacter(chatId as CharacterId) : null;
+
+    // Get reply character info
+    const replyCharacter = replyToMessage?.characterId
+        ? getCharacter(replyToMessage.characterId)
+        : null;
 
     // Auto-scroll to bottom
     useEffect(() => {
@@ -89,14 +94,18 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
     const handleSend = useCallback(async () => {
         if (!message.trim() || loading) return;
 
-        const content = message.trim();
+        // If replying, prepend the reply context
+        const finalContent = replyToMessage
+            ? `> ${replyCharacter?.name || 'You'}: "${replyToMessage.content.slice(0, 50)}${replyToMessage.content.length > 50 ? '...' : ''}"\n\n${message.trim()}`
+            : message.trim();
+
         setMessage('');
 
         // Add user message
         addMessage({
             chatId,
             role: 'user',
-            content,
+            content: finalContent,
         });
 
         setLoading(chatId, true);
@@ -114,7 +123,7 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chatId,
-                    message: content,
+                    message: finalContent,
                     history: chatMessages.slice(-10).map(m => ({
                         role: m.role,
                         content: m.content,
@@ -264,6 +273,36 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
 
             {/* Input */}
             <div className="p-3 border-t border-sakura-200/30 bg-white/90">
+                {/* Reply preview */}
+                <AnimatePresence>
+                    {replyToMessage && (
+                        <motion.div
+                            className="flex items-center gap-2 mb-2 px-3 py-2 bg-sakura-50 rounded-lg border-l-3"
+                            style={{ borderLeftColor: replyCharacter?.color || '#FF6B8A' }}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                        >
+                            <Reply size={14} className="text-sakura-500 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium" style={{ color: replyCharacter?.color || '#FF6B8A' }}>
+                                    Replying to {replyCharacter?.name || 'yourself'}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">
+                                    {replyToMessage.content.slice(0, 50)}{replyToMessage.content.length > 50 ? '...' : ''}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setReplyToMessage(null)}
+                                className="p-1 hover:bg-sakura-100 rounded-full transition-colors"
+                            >
+                                <X size={14} className="text-gray-400" />
+                            </button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 {/* Emoji picker row */}
                 <AnimatePresence>
                     {showEmojiPicker && (
@@ -326,6 +365,7 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
 function MobileMessageBubble({ message, index }: { message: Message; index: number }) {
     const isUser = message.role === 'user';
     const character = message.characterId ? getCharacter(message.characterId) : null;
+    const setReplyToMessage = useChatStore((state) => state.setReplyToMessage);
 
     return (
         <motion.div
@@ -350,23 +390,34 @@ function MobileMessageBubble({ message, index }: { message: Message; index: numb
                 </div>
             )}
 
-            {/* Bubble */}
+            {/* Bubble with reply button */}
             <div className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'}`}>
                 {!isUser && character && (
                     <span className="text-xs font-medium mb-0.5 px-1" style={{ color: character.color }}>
                         {character.name}
                     </span>
                 )}
-                <div
-                    className={`rounded-2xl px-3 py-2 text-sm ${isUser
-                        ? 'bg-sakura-500 text-white rounded-br-sm'
-                        : 'bg-white shadow-sm rounded-bl-sm'
-                        }`}
-                    style={!isUser && character ? { borderLeft: `3px solid ${character.color}` } : undefined}
-                >
-                    {formatMessageContent(message.content)}
+                <div className="relative group">
+                    <div
+                        className={`rounded-2xl px-3 py-2 text-sm ${isUser
+                            ? 'bg-sakura-500 text-white rounded-br-sm'
+                            : 'bg-white shadow-sm rounded-bl-sm'
+                            }`}
+                        style={!isUser && character ? { borderLeft: `3px solid ${character.color}` } : undefined}
+                    >
+                        {formatMessageContent(message.content, isUser)}
+                    </div>
+                    {/* Reply button */}
+                    <button
+                        onClick={() => setReplyToMessage(message)}
+                        className={`absolute -bottom-2 p-1.5 bg-white rounded-full shadow-md border border-gray-100 transition-all active:scale-95 ${isUser ? '-left-2' : '-right-2'
+                            }`}
+                    >
+                        <Reply size={12} className="text-gray-400" />
+                    </button>
                 </div>
             </div>
         </motion.div>
     );
 }
+
