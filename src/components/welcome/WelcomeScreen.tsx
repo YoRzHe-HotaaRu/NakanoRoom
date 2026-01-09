@@ -68,14 +68,14 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="text-center mb-4 md:mb-6"
+                                            className="text-center mb-5 md:mb-8"
                                             initial={{ opacity: 0, y: -30 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.8, ease: 'easeOut' }}
                                         >
                                             {/* Logo/Icon */}
                                             <motion.div
-                                                className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-2 rounded-full overflow-hidden border-3 border-sakura-300 shadow-lg"
+                                                className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 rounded-full overflow-hidden border-3 border-sakura-300 shadow-lg"
                                                 initial={{ scale: 0, rotate: -180 }}
                                                 animate={{ scale: 1, rotate: 0 }}
                                                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
@@ -134,7 +134,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                             transition={{ delay: 0.5 }}
                                         >
                                             <motion.h2
-                                                className="text-center text-lg md:text-xl font-bold text-gray-700 mb-3"
+                                                className="text-center text-lg md:text-xl font-bold text-gray-700 mb-4"
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.7 }}
