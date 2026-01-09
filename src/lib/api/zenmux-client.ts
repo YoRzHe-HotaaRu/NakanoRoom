@@ -250,7 +250,8 @@ export async function chatAsCharacter(
 export async function getGroupChatResponses(
     characterIds: CharacterId[],
     userMessage: string,
-    conversationHistory: ChatMessage[] = []
+    conversationHistory: ChatMessage[] = [],
+    attachment?: Attachment
 ): Promise<Map<CharacterId, string>> {
     const { buildSisterResponseContext, getResponseOrder } = await import('../prompts/group-chat-prompts');
 
@@ -260,7 +261,8 @@ export async function getGroupChatResponses(
     const responses = new Map<CharacterId, string>();
 
     // Call APIs SEQUENTIALLY so each sister can see previous responses
-    for (const characterId of orderedResponders) {
+    for (let i = 0; i < orderedResponders.length; i++) {
+        const characterId = orderedResponders[i];
         try {
             // Build context of what sisters already said this turn
             const sisterContext = buildSisterResponseContext(responses, characterId);
@@ -270,11 +272,13 @@ export async function getGroupChatResponses(
                 ? `${userMessage}${sisterContext}`
                 : userMessage;
 
+            // Only pass attachment to the first responder
             const response = await chatAsCharacter(
                 characterId,
                 enrichedMessage,
                 conversationHistory,
-                true // isGroupChat
+                true, // isGroupChat
+                i === 0 ? attachment : undefined // Only first responder sees the attachment
             );
 
             if (response) {

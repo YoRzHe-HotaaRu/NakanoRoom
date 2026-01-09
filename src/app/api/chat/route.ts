@@ -75,7 +75,8 @@ export async function POST(request: NextRequest) {
                 const parallelResponses = await getGroupChatResponses(
                     fullResponders,
                     message,
-                    conversationHistory
+                    conversationHistory,
+                    attachment // Pass attachment for group chat
                 );
 
                 for (const [characterId, content] of parallelResponses) {
