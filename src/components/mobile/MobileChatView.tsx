@@ -1,11 +1,12 @@
 'use client';
 
-import { useRef, useEffect, useCallback, ReactNode } from 'react';
+import { useRef, useEffect, useCallback, ReactNode, ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Send, Smile, Reply, X } from 'lucide-react';
+import { ArrowLeft, Send, Smile, Reply, X, Paperclip, FileText, Image as ImageIcon } from 'lucide-react';
 import { useChatStore, Message } from '@/store/chatStore';
 import { chatRooms, getCharacter, CharacterId, ChatId } from '@/lib/characters';
 import { getApiUrl } from '@/lib/api-config';
+import { Attachment } from '@/lib/api/zenmux-client';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -69,8 +70,10 @@ const quickEmojis = ['🌸', '❤️', '😊', '😂', '🥺', '✨', '💕', '�
 export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
     const [message, setMessage] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [attachment, setAttachment] = useState<Attachment | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { messages, addMessage, setLoading, isLoading, setTypingCharacters, typingCharacters, replyToMessage, setReplyToMessage } = useChatStore();
     const chatMessages = messages[chatId] || [];
@@ -92,20 +95,28 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
     }, [chatMessages, typing]);
 
     const handleSend = useCallback(async () => {
-        if (!message.trim() || loading) return;
+        // Can send if has message OR has attachment
+        if ((!message.trim() && !attachment) || loading) return;
 
         // If replying, prepend the reply context
         const finalContent = replyToMessage
             ? `> ${replyCharacter?.name || 'You'}: "${replyToMessage.content.slice(0, 50)}${replyToMessage.content.length > 50 ? '...' : ''}"\n\n${message.trim()}`
             : message.trim();
 
+        // Display content with attachment indicator
+        const displayContent = attachment
+            ? `${finalContent}${finalContent ? '\n' : ''}[📎 ${attachment.filename}]`
+            : finalContent;
+
         setMessage('');
+        const currentAttachment = attachment;
+        setAttachment(null);
 
         // Add user message
         addMessage({
             chatId,
             role: 'user',
-            content: finalContent,
+            content: displayContent,
         });
 
         setLoading(chatId, true);
@@ -123,12 +134,13 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chatId,
-                    message: finalContent,
+                    message: finalContent || 'Please analyze this file.',
                     history: chatMessages.slice(-10).map(m => ({
                         role: m.role,
                         content: m.content,
                         characterId: m.characterId,
                     })),
+                    attachment: currentAttachment || undefined,
                 }),
             });
 
@@ -162,7 +174,42 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
         } finally {
             setLoading(chatId, false);
         }
-    }, [message, loading, chatId, isGroup, chatMessages, addMessage, setLoading, setTypingCharacters]);
+    }, [message, loading, chatId, isGroup, chatMessages, addMessage, setLoading, setTypingCharacters, attachment, replyToMessage, replyCharacter]);
+
+    // Handle file selection
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Check file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File too large! Maximum size is 10MB.');
+            return;
+        }
+
+        const isImage = file.type.startsWith('image/');
+        const isPdf = file.type === 'application/pdf';
+
+        if (!isImage && !isPdf) {
+            alert('Only images and PDF files are supported.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setAttachment({
+                base64: reader.result as string,
+                type: isImage ? 'image' : 'pdf',
+                filename: file.name,
+                preview: isImage ? reader.result as string : undefined
+            });
+        };
+        reader.readAsDataURL(file);
+
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const removeAttachment = () => setAttachment(null);
 
     return (
         <div className="h-full flex flex-col bg-white/80 backdrop-blur-sm">
@@ -329,6 +376,54 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
                     )}
                 </AnimatePresence>
 
+                {/* Hidden file input */}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                />
+
+                {/* Attachment preview */}
+                <AnimatePresence>
+                    {attachment && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mb-2"
+                        >
+                            <div className="inline-flex items-center gap-2 px-3 py-2 bg-sakura-50 border border-sakura-200 rounded-lg">
+                                {attachment.type === 'image' ? (
+                                    <>
+                                        {attachment.preview && (
+                                            <img
+                                                src={attachment.preview}
+                                                alt="Preview"
+                                                className="w-8 h-8 object-cover rounded"
+                                            />
+                                        )}
+                                        <ImageIcon size={14} className="text-sakura-500" />
+                                    </>
+                                ) : (
+                                    <FileText size={14} className="text-sakura-500" />
+                                )}
+                                <span className="text-xs text-gray-600 max-w-[100px] truncate">
+                                    {attachment.filename}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={removeAttachment}
+                                    className="p-0.5 hover:bg-sakura-100 rounded-full"
+                                >
+                                    <X size={12} className="text-gray-500" />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <div className="flex items-center gap-2">
                     <button
                         type="button"
@@ -337,6 +432,13 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
                             }`}
                     >
                         <Smile size={22} />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center justify-center w-10 h-10 rounded-full text-sakura-400 transition-colors"
+                    >
+                        <Paperclip size={20} />
                     </button>
                     <input
                         ref={inputRef}
@@ -351,7 +453,7 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
                     />
                     <button
                         onClick={handleSend}
-                        disabled={!message.trim() || loading}
+                        disabled={(!message.trim() && !attachment) || loading}
                         className="flex items-center justify-center w-10 h-10 bg-sakura-500 text-white rounded-full disabled:opacity-50"
                     >
                         <Send size={18} />

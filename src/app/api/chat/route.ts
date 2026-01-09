@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { chatAsCharacter, getGroupChatResponses } from '@/lib/api/zenmux-client';
+import { chatAsCharacter, getGroupChatResponses, Attachment } from '@/lib/api/zenmux-client';
 import {
     selectGroupChatResponders,
     shouldSendKaomojiOnly,
@@ -17,6 +17,7 @@ interface ChatRequest {
     chatId: 'group' | CharacterId;
     message: string;
     history?: ChatMessage[];
+    attachment?: Attachment;
 }
 
 interface CharacterResponse {
@@ -28,7 +29,7 @@ interface CharacterResponse {
 export async function POST(request: NextRequest) {
     try {
         const body: ChatRequest = await request.json();
-        const { chatId, message, history = [] } = body;
+        const { chatId, message, history = [], attachment } = body;
 
         if (!message?.trim()) {
             return NextResponse.json(
@@ -105,7 +106,8 @@ export async function POST(request: NextRequest) {
                     characterId,
                     message,
                     conversationHistory,
-                    false // not group chat
+                    false, // not group chat
+                    attachment // pass attachment if present
                 );
 
                 return NextResponse.json({

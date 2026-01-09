@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useRef, useEffect, FormEvent, KeyboardEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent, KeyboardEvent, ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, Smile, X, Reply } from 'lucide-react';
+import { Send, Smile, X, Reply, Paperclip, FileText, Image as ImageIcon } from 'lucide-react';
 import { useChatStore, useIsLoading } from '@/store/chatStore';
 import { characters, CharacterId, getCharacter } from '@/lib/characters';
+import { Attachment } from '@/lib/api/zenmux-client';
 
 interface ChatInputProps {
-    onSend: (message: string) => void;
+    onSend: (message: string, attachment?: Attachment) => void;
 }
 
 interface MentionOption {
@@ -59,9 +60,11 @@ export function ChatInput({ onSend }: ChatInputProps) {
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const emojiPickerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const isLoading = useIsLoading();
     const replyToMessage = useChatStore((state) => state.replyToMessage);
     const setReplyToMessage = useChatStore((state) => state.setReplyToMessage);
+    const [attachment, setAttachment] = useState<Attachment | null>(null);
 
     // Get reply character info
     const replyCharacter = replyToMessage?.characterId
@@ -160,15 +163,61 @@ export function ChatInput({ onSend }: ChatInputProps) {
         }, 0);
     };
 
+    // Handle file selection
+    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Check file size (max 10MB)
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('File too large! Maximum size is 10MB.');
+            return;
+        }
+
+        // Determine file type
+        const isImage = file.type.startsWith('image/');
+        const isPdf = file.type === 'application/pdf';
+
+        if (!isImage && !isPdf) {
+            alert('Only images (JPG, PNG, GIF, WebP) and PDF files are supported.');
+            return;
+        }
+
+        // Convert to base64
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64 = reader.result as string;
+            setAttachment({
+                base64,
+                type: isImage ? 'image' : 'pdf',
+                filename: file.name,
+                preview: isImage ? base64 : undefined
+            });
+        };
+        reader.readAsDataURL(file);
+
+        // Reset file input
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const removeAttachment = () => {
+        setAttachment(null);
+    };
+
     const handleSubmit = (e?: FormEvent) => {
         e?.preventDefault();
-        if (message.trim() && !isLoading) {
+        // Can send if has message OR has attachment
+        if ((message.trim() || attachment) && !isLoading) {
             // If replying, prepend the reply context
             const finalMessage = replyToMessage
                 ? `> ${replyCharacter?.name || 'You'}: "${replyToMessage.content.slice(0, 50)}${replyToMessage.content.length > 50 ? '...' : ''}"\n\n${message.trim()}`
                 : message.trim();
-            onSend(finalMessage);
+            onSend(finalMessage, attachment || undefined);
             setMessage('');
+            setAttachment(null);
             setShowMentions(false);
             setShowEmojiPicker(false);
             if (textareaRef.current) {
@@ -351,13 +400,61 @@ export function ChatInput({ onSend }: ChatInputProps) {
                                     type="button"
                                     onClick={() => insertEmoji(emoji)}
                                     className={`hover:bg-sakura-50 rounded-lg transition-colors text-center ${activeEmojiCategory === 0
-                                            ? 'p-2 text-sm whitespace-nowrap'
-                                            : 'p-2 text-lg'
+                                        ? 'p-2 text-sm whitespace-nowrap'
+                                        : 'p-2 text-lg'
                                         }`}
                                 >
                                     {emoji}
                                 </button>
                             ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Hidden file input */}
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                onChange={handleFileChange}
+                className="hidden"
+            />
+
+            {/* Attachment preview */}
+            <AnimatePresence>
+                {attachment && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mb-2"
+                    >
+                        <div className="inline-flex items-center gap-2 px-3 py-2 bg-sakura-50 border border-sakura-200 rounded-lg">
+                            {attachment.type === 'image' ? (
+                                <>
+                                    {attachment.preview && (
+                                        <img
+                                            src={attachment.preview}
+                                            alt="Preview"
+                                            className="w-10 h-10 object-cover rounded"
+                                        />
+                                    )}
+                                    <ImageIcon size={16} className="text-sakura-500" />
+                                </>
+                            ) : (
+                                <FileText size={16} className="text-sakura-500" />
+                            )}
+                            <span className="text-sm text-gray-600 max-w-[150px] truncate">
+                                {attachment.filename}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={removeAttachment}
+                                className="p-1 hover:bg-sakura-100 rounded-full transition-colors"
+                            >
+                                <X size={14} className="text-gray-500" />
+                            </button>
                         </div>
                     </motion.div>
                 )}
@@ -383,6 +480,18 @@ export function ChatInput({ onSend }: ChatInputProps) {
                     <Smile size={20} />
                 </motion.button>
 
+                {/* Attachment button */}
+                <motion.button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center justify-center w-10 h-10 transition-colors rounded-xl text-sakura-400 hover:text-sakura-600 hover:bg-sakura-100/50"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Attach file"
+                >
+                    <Paperclip size={20} />
+                </motion.button>
+
                 {/* Input field */}
                 <div className="flex-1 relative">
                     <textarea
@@ -401,10 +510,10 @@ export function ChatInput({ onSend }: ChatInputProps) {
                 {/* Send button */}
                 <motion.button
                     type="submit"
-                    disabled={!message.trim() || isLoading}
+                    disabled={(!message.trim() && !attachment) || isLoading}
                     className="btn-send flex items-center justify-center w-10 h-10 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
-                    whileHover={message.trim() && !isLoading ? { scale: 1.05 } : undefined}
-                    whileTap={message.trim() && !isLoading ? { scale: 0.95 } : undefined}
+                    whileHover={(message.trim() || attachment) && !isLoading ? { scale: 1.05 } : undefined}
+                    whileTap={(message.trim() || attachment) && !isLoading ? { scale: 0.95 } : undefined}
                     aria-label="Send message"
                 >
                     {isLoading ? (

@@ -1,8 +1,22 @@
 import { CharacterId, getCharacter } from '../characters';
 
+// Multimodal content types for ZenMux API
+export type TextContent = { type: 'text'; text: string };
+export type ImageContent = { type: 'image_url'; image_url: { url: string } };
+export type FileContent = { type: 'file'; file: { filename: string; file_data: string } };
+export type ContentPart = TextContent | ImageContent | FileContent;
+
+// Attachment interface for frontend
+export interface Attachment {
+    base64: string;
+    type: 'image' | 'pdf';
+    filename: string;
+    preview?: string; // For image thumbnails
+}
+
 interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
-    content: string;
+    content: string | ContentPart[];
 }
 
 interface ChatCompletionRequest {
@@ -174,7 +188,8 @@ export async function chatAsCharacter(
     characterId: CharacterId,
     userMessage: string,
     conversationHistory: ChatMessage[] = [],
-    isGroupChat: boolean = false
+    isGroupChat: boolean = false,
+    attachment?: Attachment
 ): Promise<string> {
     const character = getCharacter(characterId);
     const config = getCharacterApiConfig(characterId);
@@ -188,10 +203,38 @@ export async function chatAsCharacter(
         systemPrompt = getGroupChatPrompt(characterId, character.systemPrompt);
     }
 
+    // Build user message content - multimodal if attachment present
+    let userContent: string | ContentPart[];
+
+    if (attachment) {
+        const contentParts: ContentPart[] = [
+            { type: 'text', text: userMessage || 'Please analyze this file.' }
+        ];
+
+        if (attachment.type === 'image') {
+            contentParts.push({
+                type: 'image_url',
+                image_url: { url: attachment.base64 }
+            });
+        } else if (attachment.type === 'pdf') {
+            contentParts.push({
+                type: 'file',
+                file: {
+                    filename: attachment.filename,
+                    file_data: attachment.base64
+                }
+            });
+        }
+
+        userContent = contentParts;
+    } else {
+        userContent = userMessage;
+    }
+
     const messages: ChatMessage[] = [
         { role: 'system', content: systemPrompt },
         ...conversationHistory,
-        { role: 'user', content: userMessage },
+        { role: 'user', content: userContent },
     ];
 
     const response = await callChatApi(config, messages, {

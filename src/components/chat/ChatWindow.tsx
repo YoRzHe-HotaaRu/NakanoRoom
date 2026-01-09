@@ -7,6 +7,7 @@ import { MessageBubble, TypingIndicator } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { chatRooms, CharacterId, ChatRoom, ChatId, getCharacter } from '@/lib/characters';
 import { getApiUrl } from '@/lib/api-config';
+import { Attachment } from '@/lib/api/zenmux-client';
 import Image from 'next/image';
 
 interface ChatResponse {
@@ -65,12 +66,16 @@ export function ChatWindow() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, typingCharacters]);
 
-    const handleSendMessage = useCallback(async (content: string) => {
-        // Add user message
+    const handleSendMessage = useCallback(async (content: string, attachment?: Attachment) => {
+        // Add user message (with attachment indicator if present)
+        const displayContent = attachment
+            ? `${content}${content ? '\n' : ''}[📎 ${attachment.filename}]`
+            : content;
+
         addMessage({
             chatId: activeChat,
             role: 'user',
-            content,
+            content: displayContent,
         });
 
         setLoading(activeChat, true);
@@ -89,12 +94,13 @@ export function ChatWindow() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     chatId: activeChat,
-                    message: content,
+                    message: content || 'Please analyze this file.',
                     history: messages.slice(-10).map(m => ({
                         role: m.role,
                         content: m.content,
                         characterId: m.characterId,
                     })),
+                    attachment: attachment || undefined,
                 }),
             });
 
