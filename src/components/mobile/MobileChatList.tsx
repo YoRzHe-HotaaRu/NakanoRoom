@@ -50,8 +50,14 @@ export function MobileChatList({ onSelectChat }: MobileChatListProps) {
                                     />
                                 </div>
                             ) : (
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sakura-200 to-sakura-400 flex items-center justify-center text-xl flex-shrink-0">
-                                    🌸
+                                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 border-2 border-sakura-400">
+                                    <Image
+                                        src="/Asset/NakanoRoom/NakanoRoomChatPic.jpg"
+                                        alt="Nakano Room"
+                                        width={48}
+                                        height={48}
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
                             )}
 
