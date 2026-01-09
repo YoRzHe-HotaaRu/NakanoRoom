@@ -157,9 +157,24 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
                 <AnimatePresence>
-                    {chatMessages.map((msg, i) => (
-                        <MobileMessageBubble key={msg.id} message={msg} index={i} />
-                    ))}
+                    {chatMessages.length === 0 ? (
+                        <motion.div
+                            className="flex flex-col items-center justify-center h-full text-center pt-20"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            <span className="text-6xl mb-4">{room?.emoji}</span>
+                            <p className="text-gray-500 mb-2">No messages yet</p>
+                            <p className="text-sm text-gray-400">
+                                Say hello to {isGroup ? 'the Nakano sisters' : room?.name}!
+                            </p>
+                        </motion.div>
+                    ) : (
+                        chatMessages.map((msg, i) => (
+                            <MobileMessageBubble key={msg.id} message={msg} index={i} />
+                        ))
+                    )}
                 </AnimatePresence>
                 <div ref={messagesEndRef} />
             </div>
