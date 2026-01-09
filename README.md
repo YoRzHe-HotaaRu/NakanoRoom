@@ -1,78 +1,110 @@
-# 🌸 Nakano Room - Chat with the Quintuplets! 
+# 🌸 Nakano Room - Chat with the Quintuplets!
 
-Welcome to **Nakano Room** – your cozy corner to hang out and chat with the five adorable Nakano sisters from *The Quintessential Quintuplets*! 
+<div align="center">
+  <img src="public/Asset/NakanoRoom/NakanoRoomChatPic.jpg" alt="Nakano Room" width="200" style="border-radius: 20px"/>
+  
+  *Your cozy corner to hang out and chat with the five adorable Nakano sisters!*
+</div>
+
+---
+
+Welcome to **Nakano Room** – an AI-powered chat application where you can hang out with the Nakano quintuplets from *The Quintessential Quintuplets* (五等分の花嫁)!
 
 Whether you want to talk about history with Miku, get cooking tips from Nino, or just have fun with Yotsuba's endless energy, this app brings the quintuplets to life with AI-powered conversations.
 
 ---
 
-## ✨ What is this?
+## ✨ Features
 
-Nakano Room is a beautifully designed chat application where you can:
-
-- 💬 **Chat with each sister individually** - Have one-on-one conversations with Ichika, Nino, Miku, Yotsuba, or Itsuki
-- 🌸 **Group chat with all five** - Watch them interact and respond together in the Nakano Room
-- 🎬 **Animated video wallpaper** - Enjoy the anime openings playing in the background
-- 🎵 **Background music** - Listen to the OPs while you chat (with mute toggle!)
-- 📸 **Beautiful image slideshows** - Each character has their own gallery rotating in the side panel
+| Feature | Description |
+|---------|-------------|
+| 💬 **Individual Chats** | One-on-one conversations with each sister |
+| 🌸 **Group Chat** | Chat with all five sisters at once in the Nakano Room |
+| 📱 **Mobile App** | Native Android APK with Capacitor |
+| 🎬 **Animated Wallpaper** | Anime OPs playing as background video |
+| 🎵 **Background Music** | Listen to OPs with mute toggle |
+| 📸 **Image Galleries** | Rotating character slideshows |
+| 💬 **Context Menus** | Right-click (desktop) or tap interactions (mobile) |
+| ↩️ **Reply Feature** | Quote and reply to any message |
+| 😊 **Emoji & Kaomoji** | Quick emoji picker with cute kaomoji |
+| @️ **Mentions** | Type `@` to mention specific sisters |
 
 ---
 
 ## 📸 Screenshots
 
-### Chat with All Five Sisters
-![Group Chat](Asset/Screenshot/1.png)
+<div align="center">
+
+### Desktop View - Group Chat
+<img src="public/Asset/Screenshot/1.png" alt="Group Chat" width="700"/>
 
 ### Individual Character Chats
-![Nino Chat](Asset/Screenshot/2.png)
+<table>
+<tr>
+<td><img src="public/Asset/Screenshot/2.png" alt="Nino" width="350"/></td>
+<td><img src="public/Asset/Screenshot/3.png" alt="Miku" width="350"/></td>
+</tr>
+<tr>
+<td><img src="public/Asset/Screenshot/4.png" alt="Yotsuba" width="350"/></td>
+<td><img src="public/Asset/Screenshot/5.png" alt="Itsuki" width="350"/></td>
+</tr>
+</table>
 
-![Miku Chat](Asset/Screenshot/3.png)
-
-### Beautiful UI Details
-![Yotsuba Chat](Asset/Screenshot/4.png)
-
-![Itsuki Chat](Asset/Screenshot/5.png)
-
-![Ichika Chat](Asset/Screenshot/6.png)
-
----
-
-## 🎭 Meet the Sisters
-
-| Sister | Personality | Fun Fact |
-|--------|-------------|----------|
-| 🎭 **Ichika** | Mature & flirty actress | Always calls you "sweetie" ♡ |
-| 🦋 **Nino** | Tsundere chef | "It's not like I care or anything!" |
-| 🎧 **Miku** | Shy history nerd | Can talk about Sengoku warlords for hours |
-| 🍀 **Yotsuba** | Energetic cheerleader | Never says no to helping! |
-| ⭐ **Itsuki** | Studious foodie | Gets VERY excited about meat |
+</div>
 
 ---
 
-## 🌟 Features
+## 🎭 Meet the Nakano Sisters
 
-### @Mentions
-Type `@` to mention specific sisters! They'll definitely respond when you call them out.
+<table>
+<tr>
+<td align="center" width="20%">
+<img src="public/Asset/ProfilePic/Ichika.jpg" alt="Ichika" width="100" style="border-radius: 50%"/><br/>
+<b>🎭 Ichika</b><br/>
+<sub>The Eldest Sister</sub>
+</td>
+<td align="center" width="20%">
+<img src="public/Asset/ProfilePic/Nino.png" alt="Nino" width="100" style="border-radius: 50%"/><br/>
+<b>🦋 Nino</b><br/>
+<sub>The Tsundere Chef</sub>
+</td>
+<td align="center" width="20%">
+<img src="public/Asset/ProfilePic/Miku.png" alt="Miku" width="100" style="border-radius: 50%"/><br/>
+<b>🎧 Miku</b><br/>
+<sub>The Quiet Historian</sub>
+</td>
+<td align="center" width="20%">
+<img src="public/Asset/ProfilePic/Yotsuba.png" alt="Yotsuba" width="100" style="border-radius: 50%"/><br/>
+<b>🍀 Yotsuba</b><br/>
+<sub>The Energetic Helper</sub>
+</td>
+<td align="center" width="20%">
+<img src="public/Asset/ProfilePic/Itsuki.png" alt="Itsuki" width="100" style="border-radius: 50%"/><br/>
+<b>⭐ Itsuki</b><br/>
+<sub>The Studious Foodie</sub>
+</td>
+</tr>
+</table>
 
-### Character Slideshows  
-Each sister has their own image gallery that rotates every 5 seconds with smooth transitions.
+### Character Details
 
-### Animated Background
-The anime OPs (OP1, OP2, OP3) play on loop as your wallpaper with gentle blur effect.
-
-### Real-time Clock & Quotes
-A cute analog clock and rotating character quotes decorate the corner.
+| Sister | Color | Personality | Signature Trait |
+|--------|-------|-------------|-----------------|
+| **Ichika** | 💗 Pink | Mature, flirty, caring | Always calls you "sweetie" ♡ |
+| **Nino** | 🦋 Coral | Tsundere, passionate, loyal | "It's not like I care or anything!" |
+| **Miku** | 💙 Blue | Shy, nerdy, sweet | Can talk about Sengoku warlords for hours |
+| **Yotsuba** | 💚 Green | Energetic, selfless, cheerful | Never says no to helping! |
+| **Itsuki** | ⭐ Orange | Studious, honest, hungry | Gets VERY excited about meat 🍖 |
 
 ---
 
-## 🛠️ Setup (For Developers)
-
-Want to run this yourself? Here's how:
+## 🛠️ Setup
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - An LLM API key (ZenMux, OpenAI, etc.)
+- For Android: Android Studio (for building APK)
 
 ### Installation
 
@@ -91,13 +123,13 @@ cp .env.example .env.local
 
 ### Environment Variables
 
-Create a `.env.local` file with:
+Create a `.env.local` file:
 
 ```env
 ZENMUX_API_KEY=your_api_key_here
 ZENMUX_BASE_URL=https://zenmux.ai/api/v1
 
-# Optional: Per-character API keys for more variety
+# Optional: Per-character API keys
 ICHIKA_API_KEY=your_key
 NINO_API_KEY=your_key
 MIKU_API_KEY=your_key
@@ -114,7 +146,51 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### Deploy to Vercel
+---
+
+## 📱 Building Android APK
+
+This project uses **Capacitor** to build native Android apps.
+
+### Quick Build
+
+```bash
+# Build web assets and sync to Android
+npm run mobile:build
+
+# Open in Android Studio
+npx cap open android
+```
+
+### In Android Studio
+1. Go to **Build → Build Bundle(s) / APK(s) → Build APK(s)**
+2. Wait for build to complete
+3. APK location: `android/app/build/outputs/apk/debug/app-debug.apk`
+
+### Command Line Build (Optional)
+```bash
+cd android
+./gradlew assembleDebug
+```
+
+---
+
+## 🎮 Usage Guide
+
+### Desktop
+- **Right-click** on message bubbles to reply
+- **Right-click** on sidebar chats to clear chat
+- Type `@` to mention a sister
+- Click emoji button for emoji picker
+
+### Mobile
+- Tap the **⋮** button on chat list for Clear Chat
+- Tap the **↩️** button on messages to reply
+- Tap emoji button for quick emoji access
+
+---
+
+## 🚀 Deploy to Vercel
 
 ```bash
 # Install Vercel CLI
@@ -124,15 +200,16 @@ npm install -g vercel
 vercel
 ```
 
-Don't forget to add your environment variables in the Vercel dashboard!
+Add your environment variables in Vercel dashboard.
 
 ---
 
 ## 💕 Credits
 
-- **The Quintessential Quintuplets** (五等分の花嫁) - Original anime/manga
-- Built with **Next.js**, **Tailwind CSS**, and **Motion.dev**
-- Powered by LLM APIs for character conversations
+- **The Quintessential Quintuplets** (五等分の花嫁) - Original anime/manga by Negi Haruba
+- Built with **Next.js 16**, **Tailwind CSS v4**, **Motion.dev**, and **Zustand**
+- Native mobile with **Capacitor**
+- Powered by LLM APIs for AI conversations
 
 ---
 
@@ -144,4 +221,10 @@ This is a fan project made with love for the Nakano sisters! 🌸
 
 ---
 
+<div align="center">
+  
 Made with 💖 by fans, for fans.
+
+<img src="public/Asset/NakanoRoom/NakanoRoom.jpg" alt="All Sisters" width="400"/>
+
+</div>
