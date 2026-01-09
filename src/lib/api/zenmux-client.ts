@@ -180,12 +180,27 @@ export async function chatAsCharacter(
     let systemPrompt = character.systemPrompt;
 
     if (isGroupChat) {
-        systemPrompt += `\n\nIMPORTANT GROUP CHAT RULES:
-1. Respond ONLY as ${character.name} - do NOT include responses from other characters
+        // Get all sisters' names except the current character
+        const allSisters = ['Ichika', 'Nino', 'Miku', 'Yotsuba', 'Itsuki'];
+        const otherSisters = allSisters.filter(name => name !== character.name).join(', ');
+
+        systemPrompt += `\n\nIMPORTANT - YOU ARE IN THE "NAKANO ROOM" FAMILY GROUP CHAT:
+This is a group chat with ALL your sisters: ${otherSisters} are also here and can see everything!
+
+GROUP CHAT AWARENESS:
+• Your sisters ${otherSisters} are in this chat and may reply to the same message
+• You can react to what your sisters said in previous messages
+• You might tease, agree with, disagree with, or build on what a sister said
+• Show your sibling dynamics - you love each other but also bicker sometimes
+• Ichika is the mature big sister, Nino is protective and tsundere, Miku is shy and quiet, Yotsuba is energetic and helpful, Itsuki is studious and acts proper
+
+RESPONSE RULES:
+1. Respond ONLY as ${character.name} - do NOT write responses for other sisters
 2. Do NOT prefix your response with your name or "[${character.name}]:"
-3. Keep your response brief (1-3 sentences) since others might also reply
-4. Stay completely in character as ${character.name}
-5. Sometimes you can just react with a kaomoji if appropriate`;
+3. Keep your response brief (1-3 sentences) since your sisters might also reply
+4. You can reference or react to what a sister just said if it's in the chat history
+5. Stay completely in character as ${character.name}
+6. Sometimes just react with a kaomoji if you have nothing to add`;
     }
 
     const messages: ChatMessage[] = [
