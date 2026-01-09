@@ -97,7 +97,15 @@ function ChatItem({
                     />
                 </div>
             ) : (
-                <span className="text-2xl">{emoji}</span>
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-sakura-400 shadow-sm flex-shrink-0">
+                    <Image
+                        src="/Asset/NakanoRoom/NakanoRoomChatPic.jpg"
+                        alt="Nakano Room"
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                    />
+                </div>
             )}
             <div className="flex-1 text-left">
                 <p className="font-medium text-gray-800">{name}</p>
