@@ -82,10 +82,10 @@ export function VideoBackground() {
                 />
             </div>
 
-            {/* Mute toggle button - bottom right */}
+            {/* Mute toggle button - positioned above bottom nav on mobile */}
             <motion.button
                 onClick={toggleMute}
-                className="fixed bottom-4 right-4 z-50 w-10 h-10 rounded-full glass-panel flex items-center justify-center text-sakura-600 hover:text-sakura-700 hover:bg-white/80 transition-colors shadow-lg"
+                className="fixed bottom-20 right-4 z-50 w-10 h-10 rounded-full glass-panel flex items-center justify-center text-sakura-600 hover:text-sakura-700 hover:bg-white/80 transition-colors shadow-lg md:bottom-4"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 initial={{ opacity: 0, y: 20 }}

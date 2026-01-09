@@ -132,8 +132,14 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
                         />
                     </div>
                 ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sakura-200 to-sakura-400 flex items-center justify-center text-lg">
-                        🌸
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-sakura-400">
+                        <Image
+                            src="/Asset/NakanoRoom/NakanoRoomChatPic.jpg"
+                            alt="Nakano Room"
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                 )}
 
@@ -222,8 +228,8 @@ function MobileMessageBubble({ message, index }: { message: Message; index: numb
                 )}
                 <div
                     className={`rounded-2xl px-3 py-2 text-sm ${isUser
-                            ? 'bg-sakura-500 text-white rounded-br-sm'
-                            : 'bg-white shadow-sm rounded-bl-sm'
+                        ? 'bg-sakura-500 text-white rounded-br-sm'
+                        : 'bg-white shadow-sm rounded-bl-sm'
                         }`}
                     style={!isUser && character ? { borderLeft: `3px solid ${character.color}` } : undefined}
                 >

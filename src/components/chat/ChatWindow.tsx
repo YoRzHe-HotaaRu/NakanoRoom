@@ -19,7 +19,17 @@ function ChatHeaderAvatar({ chatId, room }: { chatId: ChatId; room: ChatRoom | u
     const isGroup = chatId === 'group';
 
     if (isGroup || !room) {
-        return <span className="text-2xl">{room?.emoji}</span>;
+        return (
+            <div className="w-10 h-10 rounded-full overflow-hidden shadow-md border-2 border-sakura-400">
+                <Image
+                    src="/Asset/NakanoRoom/NakanoRoomChatPic.jpg"
+                    alt="Nakano Room"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                />
+            </div>
+        );
     }
 
     const character = getCharacter(chatId as CharacterId);
