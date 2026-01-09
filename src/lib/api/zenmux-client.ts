@@ -150,7 +150,10 @@ function cleanResponse(response: string | null | undefined, characterId: Charact
     // Remove *Name* prefix at start
     cleaned = cleaned.replace(/^\*(?:Ichika|Nino|Miku|Yotsuba|Itsuki)\*\s*/i, '');
 
-    // Cut off at any other character's response
+    // Remove ALL inline [Name]: patterns (including in the middle of text)
+    cleaned = cleaned.replace(/\s*\[(?:Ichika|Nino|Miku|Yotsuba|Itsuki)\]:\s*/gi, ' ');
+
+    // Cut off at any other character's response (newline followed by name)
     const otherCharPattern = /\n+\[(?:Ichika|Nino|Miku|Yotsuba|Itsuki)\]:/i;
     const match = cleaned.match(otherCharPattern);
     if (match && match.index !== undefined) {
@@ -180,27 +183,9 @@ export async function chatAsCharacter(
     let systemPrompt = character.systemPrompt;
 
     if (isGroupChat) {
-        // Get all sisters' names except the current character
-        const allSisters = ['Ichika', 'Nino', 'Miku', 'Yotsuba', 'Itsuki'];
-        const otherSisters = allSisters.filter(name => name !== character.name).join(', ');
-
-        systemPrompt += `\n\nIMPORTANT - YOU ARE IN THE "NAKANO ROOM" FAMILY GROUP CHAT:
-This is a group chat with ALL your sisters: ${otherSisters} are also here and can see everything!
-
-GROUP CHAT AWARENESS:
-• Your sisters ${otherSisters} are in this chat and may reply to the same message
-• You can react to what your sisters said in previous messages
-• You might tease, agree with, disagree with, or build on what a sister said
-• Show your sibling dynamics - you love each other but also bicker sometimes
-• Ichika is the mature big sister, Nino is protective and tsundere, Miku is shy and quiet, Yotsuba is energetic and helpful, Itsuki is studious and acts proper
-
-RESPONSE RULES:
-1. Respond ONLY as ${character.name} - do NOT write responses for other sisters
-2. Do NOT prefix your response with your name or "[${character.name}]:"
-3. Keep your response brief (1-3 sentences) since your sisters might also reply
-4. You can reference or react to what a sister just said if it's in the chat history
-5. Stay completely in character as ${character.name}
-6. Sometimes just react with a kaomoji if you have nothing to add`;
+        // Import and use the group chat prompts module
+        const { getGroupChatPrompt } = await import('../prompts/group-chat-prompts');
+        systemPrompt = getGroupChatPrompt(characterId, character.systemPrompt);
     }
 
     const messages: ChatMessage[] = [
@@ -217,34 +202,43 @@ RESPONSE RULES:
     return cleanResponse(response, characterId);
 }
 
-// Get responses from multiple characters IN PARALLEL for realistic group chat
+// Get responses from multiple characters SEQUENTIALLY
+// Each sister sees what previous sisters said and can react to them
 export async function getGroupChatResponses(
     characterIds: CharacterId[],
     userMessage: string,
     conversationHistory: ChatMessage[] = []
 ): Promise<Map<CharacterId, string>> {
-    // Call all character APIs in parallel for faster, more realistic responses
-    const responsePromises = characterIds.map(async (characterId) => {
+    const { buildSisterResponseContext, getResponseOrder } = await import('../prompts/group-chat-prompts');
+
+    // Order responders (energetic ones first, quiet ones last)
+    const orderedResponders = getResponseOrder(characterIds);
+
+    const responses = new Map<CharacterId, string>();
+
+    // Call APIs SEQUENTIALLY so each sister can see previous responses
+    for (const characterId of orderedResponders) {
         try {
+            // Build context of what sisters already said this turn
+            const sisterContext = buildSisterResponseContext(responses, characterId);
+
+            // Combine user message with sister context
+            const enrichedMessage = sisterContext
+                ? `${userMessage}${sisterContext}`
+                : userMessage;
+
             const response = await chatAsCharacter(
                 characterId,
-                userMessage,
+                enrichedMessage,
                 conversationHistory,
                 true // isGroupChat
             );
-            return { characterId, response, success: true };
+
+            if (response) {
+                responses.set(characterId, response);
+            }
         } catch (error) {
             console.error(`Failed to get response from ${characterId}:`, error);
-            return { characterId, response: '', success: false };
-        }
-    });
-
-    const results = await Promise.all(responsePromises);
-
-    const responses = new Map<CharacterId, string>();
-    for (const result of results) {
-        if (result.success && result.response) {
-            responses.set(result.characterId, result.response);
         }
     }
 

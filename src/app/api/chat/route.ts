@@ -37,24 +37,14 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Convert history to API format
-        // For group chat, include who said what so sisters can react to each other
-        const conversationHistory = history.slice(-8).map((msg) => {
-            if (chatId === 'group' && msg.role === 'assistant' && msg.characterId) {
-                // Include sister's name in group chat so others know who said it
-                return {
-                    role: msg.role as 'user' | 'assistant',
-                    content: `[${msg.characterId.charAt(0).toUpperCase() + msg.characterId.slice(1)}]: ${msg.content}`,
-                };
-            }
-            return {
-                role: msg.role as 'user' | 'assistant',
-                content: msg.content,
-            };
-        });
+        // Convert history to API format (simplified - sister context is now injected separately)
+        const conversationHistory = history.slice(-8).map((msg) => ({
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content,
+        }));
 
         if (chatId === 'group') {
-            // Group chat - multiple characters respond IN PARALLEL
+            // Group chat - characters respond SEQUENTIALLY so they can react to each other
             const responders = selectGroupChatResponders(message);
             const responses: CharacterResponse[] = [];
 
