@@ -6,6 +6,7 @@ import { useChatStore, useActiveChat, useCurrentMessages, useTypingCharacters } 
 import { MessageBubble, TypingIndicator } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { chatRooms, CharacterId, ChatRoom, ChatId, getCharacter } from '@/lib/characters';
+import { getApiUrl } from '@/lib/api-config';
 import Image from 'next/image';
 
 interface ChatResponse {
@@ -83,7 +84,7 @@ export function ChatWindow() {
         }
 
         try {
-            const response = await fetch('/api/chat', {
+            const response = await fetch(getApiUrl('/api/chat'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

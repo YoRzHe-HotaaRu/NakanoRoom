@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Send, Smile } from 'lucide-react';
 import { useChatStore, Message } from '@/store/chatStore';
 import { chatRooms, getCharacter, CharacterId, ChatId } from '@/lib/characters';
+import { getApiUrl } from '@/lib/api-config';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -60,7 +61,7 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
         }
 
         try {
-            const response = await fetch('/api/chat', {
+            const response = await fetch(getApiUrl('/api/chat'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -11,9 +11,15 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "cap:sync": "npx cap sync",
+    "cap:open": "npx cap open android",
+    "mobile:build": "npm run build && npm run cap:sync"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "lucide-react": "^0.562.0",
     "motion": "^12.24.10",
     "next": "16.1.1",
