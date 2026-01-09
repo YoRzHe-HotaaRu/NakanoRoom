@@ -83,8 +83,8 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                                 <Image
                                                     src="/Asset/NakanoRoom/NakanoRoomChatPic.jpg"
                                                     alt="Nakano Room"
-                                                    width={128}
-                                                    height={128}
+                                                    width={192}
+                                                    height={192}
                                                     className="w-full h-full object-cover"
                                                 />
                                             </motion.div>
@@ -154,11 +154,32 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                                 Meet the Nakano Sisters 💕
                                             </motion.h2>
 
-                                            {/* Character grid */}
-                                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 px-2">
+                                            {/* Character grid - custom layout for mobile */}
+                                            {/* Desktop: 5 columns */}
+                                            <div className="hidden md:grid md:grid-cols-5 gap-4 px-2">
                                                 {Object.values(characters).map((char: Character, index: number) => (
                                                     <CharacterCard key={char.id} character={char} index={index} />
                                                 ))}
+                                            </div>
+
+                                            {/* Mobile: 1 centered + 2x2 grid */}
+                                            <div className="md:hidden px-2">
+                                                {/* First row - 1 centered card */}
+                                                <div className="flex justify-center mb-3">
+                                                    <div className="w-[45%]">
+                                                        <CharacterCard character={Object.values(characters)[0]} index={0} />
+                                                    </div>
+                                                </div>
+                                                {/* Second row - 2 cards */}
+                                                <div className="grid grid-cols-2 gap-3 mb-3">
+                                                    <CharacterCard character={Object.values(characters)[1]} index={1} />
+                                                    <CharacterCard character={Object.values(characters)[2]} index={2} />
+                                                </div>
+                                                {/* Third row - 2 cards */}
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <CharacterCard character={Object.values(characters)[3]} index={3} />
+                                                    <CharacterCard character={Object.values(characters)[4]} index={4} />
+                                                </div>
                                             </div>
                                         </motion.div>
                                     )}
