@@ -1,0 +1,235 @@
+'use client';
+
+import { useRef, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowLeft, Send, Smile } from 'lucide-react';
+import { useChatStore, Message } from '@/store/chatStore';
+import { chatRooms, getCharacter, CharacterId, ChatId } from '@/lib/characters';
+import Image from 'next/image';
+import { useState } from 'react';
+
+interface MobileChatViewProps {
+    chatId: ChatId;
+    onBack: () => void;
+}
+
+interface ChatResponse {
+    characterId: CharacterId;
+    content: string;
+    isReaction: boolean;
+}
+
+export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
+    const [message, setMessage] = useState('');
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const { messages, addMessage, setLoading, isLoading, setTypingCharacters, typingCharacters } = useChatStore();
+    const chatMessages = messages[chatId] || [];
+    const loading = isLoading[chatId] || false;
+    const typing = typingCharacters || [];
+
+    const room = chatRooms.find(r => r.id === chatId);
+    const isGroup = chatId === 'group';
+    const character = !isGroup ? getCharacter(chatId as CharacterId) : null;
+
+    // Auto-scroll to bottom
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chatMessages, typing]);
+
+    const handleSend = useCallback(async () => {
+        if (!message.trim() || loading) return;
+
+        const content = message.trim();
+        setMessage('');
+
+        // Add user message
+        addMessage({
+            chatId,
+            role: 'user',
+            content,
+        });
+
+        setLoading(chatId, true);
+
+        // Show typing indicator
+        if (isGroup) {
+            setTypingCharacters(['miku', 'yotsuba']);
+        } else {
+            setTypingCharacters([chatId as CharacterId]);
+        }
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chatId,
+                    message: content,
+                    history: chatMessages.slice(-10).map(m => ({
+                        role: m.role,
+                        content: m.content,
+                        characterId: m.characterId,
+                    })),
+                }),
+            });
+
+            if (!response.ok) throw new Error('Failed to get response');
+
+            const data = await response.json();
+            setTypingCharacters([]);
+
+            if (data.responses && Array.isArray(data.responses)) {
+                for (const resp of data.responses as ChatResponse[]) {
+                    if (data.type === 'group' && data.responses.indexOf(resp) > 0) {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                    addMessage({
+                        chatId,
+                        role: 'assistant',
+                        content: resp.content,
+                        characterId: resp.characterId,
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Failed to send message:', error);
+            setTypingCharacters([]);
+            addMessage({
+                chatId,
+                role: 'assistant',
+                content: 'Sorry, I couldn\'t process that message. Please try again!',
+                characterId: isGroup ? 'yotsuba' : chatId as CharacterId,
+            });
+        } finally {
+            setLoading(chatId, false);
+        }
+    }, [message, loading, chatId, isGroup, chatMessages, addMessage, setLoading, setTypingCharacters]);
+
+    return (
+        <div className="h-full flex flex-col bg-white/80 backdrop-blur-sm">
+            {/* Header */}
+            <header className="flex items-center gap-3 p-3 border-b border-sakura-200/30 bg-white/90">
+                <button
+                    onClick={onBack}
+                    className="p-2 -ml-2 text-sakura-600 hover:bg-sakura-50 rounded-full"
+                >
+                    <ArrowLeft size={22} />
+                </button>
+
+                {/* Avatar */}
+                {character ? (
+                    <div
+                        className="w-10 h-10 rounded-full overflow-hidden"
+                        style={{ border: `2px solid ${character.color}` }}
+                    >
+                        <Image
+                            src={character.profilePic}
+                            alt={character.name}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sakura-200 to-sakura-400 flex items-center justify-center text-lg">
+                        🌸
+                    </div>
+                )}
+
+                <div className="flex-1">
+                    <h2 className="font-semibold text-gray-800">{room?.name}</h2>
+                    <p className="text-xs text-gray-500">
+                        {typing.length > 0
+                            ? `${typing.map(id => getCharacter(id).name).join(', ')} typing...`
+                            : room?.description
+                        }
+                    </p>
+                </div>
+            </header>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                <AnimatePresence>
+                    {chatMessages.map((msg, i) => (
+                        <MobileMessageBubble key={msg.id} message={msg} index={i} />
+                    ))}
+                </AnimatePresence>
+                <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="p-3 border-t border-sakura-200/30 bg-white/90">
+                <div className="flex items-center gap-2">
+                    <button className="p-2 text-sakura-400">
+                        <Smile size={22} />
+                    </button>
+                    <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                        placeholder="Type a message..."
+                        className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sakura-300"
+                        disabled={loading}
+                    />
+                    <button
+                        onClick={handleSend}
+                        disabled={!message.trim() || loading}
+                        className="p-2 bg-sakura-500 text-white rounded-full disabled:opacity-50"
+                    >
+                        <Send size={18} />
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function MobileMessageBubble({ message, index }: { message: Message; index: number }) {
+    const isUser = message.role === 'user';
+    const character = message.characterId ? getCharacter(message.characterId) : null;
+
+    return (
+        <motion.div
+            className={`flex gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.03 }}
+        >
+            {/* Avatar - only for character */}
+            {!isUser && character && (
+                <div
+                    className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
+                    style={{ border: `2px solid ${character.color}` }}
+                >
+                    <Image
+                        src={character.profilePic}
+                        alt={character.name}
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+            )}
+
+            {/* Bubble */}
+            <div className={`max-w-[75%] ${isUser ? 'items-end' : 'items-start'}`}>
+                {!isUser && character && (
+                    <span className="text-xs font-medium mb-0.5 px-1" style={{ color: character.color }}>
+                        {character.name}
+                    </span>
+                )}
+                <div
+                    className={`rounded-2xl px-3 py-2 text-sm ${isUser
+                            ? 'bg-sakura-500 text-white rounded-br-sm'
+                            : 'bg-white shadow-sm rounded-bl-sm'
+                        }`}
+                    style={!isUser && character ? { borderLeft: `3px solid ${character.color}` } : undefined}
+                >
+                    {message.content}
+                </div>
+            </div>
+        </motion.div>
+    );
+}

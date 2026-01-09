@@ -5,9 +5,19 @@ import { ChatWindow } from '@/components/chat/ChatWindow';
 import { CharacterPanel } from '@/components/character/CharacterPanel';
 import { AnimeClock, AnimeQuote } from '@/components/decorations/AnimeClock';
 import { VideoBackground } from '@/components/decorations/VideoBackground';
+import { MobileLayout } from '@/components/layout/MobileLayout';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { motion } from 'motion/react';
 
 export function MainLayout() {
+    const isMobile = useIsMobile();
+
+    // Mobile layout
+    if (isMobile) {
+        return <MobileLayout />;
+    }
+
+    // Desktop layout (unchanged)
     return (
         <div className="h-screen w-screen overflow-hidden flex items-center justify-center gap-4 p-8">
             {/* Video Background */}
