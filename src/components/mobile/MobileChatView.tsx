@@ -176,6 +176,40 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
                         ))
                     )}
                 </AnimatePresence>
+
+                {/* Typing indicator */}
+                <AnimatePresence>
+                    {typing.length > 0 && (
+                        <motion.div
+                            className="flex items-center gap-2 px-2"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                        >
+                            {/* First typing character's avatar */}
+                            <div
+                                className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0"
+                                style={{ border: `2px solid ${getCharacter(typing[0]).color}` }}
+                            >
+                                <Image
+                                    src={getCharacter(typing[0]).profilePic}
+                                    alt={getCharacter(typing[0]).name}
+                                    width={32}
+                                    height={32}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div className="bg-white rounded-2xl rounded-bl-sm px-3 py-2 shadow-sm">
+                                <div className="typing-dots">
+                                    <span />
+                                    <span />
+                                    <span />
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <div ref={messagesEndRef} />
             </div>
 
