@@ -160,6 +160,7 @@ export function MobileChatView({ chatId, onBack }: MobileChatViewProps) {
             chatId,
             role: 'user',
             content: displayContent,
+            imagePreview: currentAttachment?.preview, // Store image preview for display
         });
 
         setLoading(chatId, true);
@@ -550,6 +551,23 @@ function MobileMessageBubble({ message, index }: { message: Message; index: numb
                             }`}
                         style={!isUser && character ? { borderLeft: `3px solid ${character.color}` } : undefined}
                     >
+                        {/* Image preview for attachments */}
+                        {message.imagePreview && (
+                            <div className="mb-2">
+                                <a
+                                    href={message.imagePreview}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block"
+                                >
+                                    <img
+                                        src={message.imagePreview}
+                                        alt="Attached image"
+                                        className="max-w-[180px] max-h-[180px] rounded-lg object-cover border-2 border-white/30"
+                                    />
+                                </a>
+                            </div>
+                        )}
                         {formatMessageContent(message.content, isUser)}
                     </div>
                     {/* Reply button - only for character messages */}

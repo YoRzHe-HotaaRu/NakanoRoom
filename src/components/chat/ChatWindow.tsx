@@ -76,6 +76,7 @@ export function ChatWindow() {
             chatId: activeChat,
             role: 'user',
             content: displayContent,
+            imagePreview: attachment?.preview, // Store image preview for display
         });
 
         setLoading(activeChat, true);

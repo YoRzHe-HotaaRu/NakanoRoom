@@ -205,6 +205,23 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                         className="message-user"
                         whileHover={{ scale: 1.01 }}
                     >
+                        {/* Image preview for attachments */}
+                        {message.imagePreview && (
+                            <div className="mb-2">
+                                <a
+                                    href={message.imagePreview}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block"
+                                >
+                                    <img
+                                        src={message.imagePreview}
+                                        alt="Attached image"
+                                        className="max-w-[200px] max-h-[200px] rounded-lg object-cover border-2 border-white/30 hover:border-white/60 transition-colors cursor-pointer"
+                                    />
+                                </a>
+                            </div>
+                        )}
                         <div className="text-sm leading-relaxed whitespace-pre-wrap">
                             {formatMessageContent(message.content, isUser)}
                         </div>

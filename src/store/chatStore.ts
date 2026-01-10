@@ -10,6 +10,7 @@ export interface Message {
     content: string;
     characterId?: CharacterId; // For assistant messages
     timestamp: number;
+    imagePreview?: string; // Base64 data URL for image attachments
 }
 
 export interface ChatState {
