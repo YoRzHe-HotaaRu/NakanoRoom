@@ -101,6 +101,205 @@ Whether you want to talk about history with Miku, get cooking tips from Nino, or
 
 ---
 
+## 🧠 How the AI Magic Works
+
+Nakano Room isn't just a simple chatbot – it's an intelligent multi-character AI system where each sister has her own personality, and they're all aware of each other!
+
+### 📖 The Concept: You Are the Tutor
+
+Just like in the anime, **you play the role of the tutor** (like Fuutarou Uesugi). Each sister knows you're their tutor and has her own feelings toward you!
+
+```
+      You (The Tutor)
+            │
+    ┌───────┼───────┐
+    │       │       │
+    ▼       ▼       ▼
+ Ichika  Nino   Miku
+ (flirty) (tsundere) (shy)
+            │
+    ┌───────┴───────┐
+    ▼               ▼
+ Yotsuba         Itsuki
+ (supportive)    (studious)
+```
+
+---
+
+## 🏗️ System Architecture
+
+### High-Level Flow
+
+```mermaid
+flowchart LR
+    User[👤 User Message] --> Frontend[🖥️ Next.js Frontend]
+    Frontend --> API[📡 API Route]
+    API --> Router{Individual or Group?}
+    Router -->|Individual| Single[🎭 Single Character AI]
+    Router -->|Group| Multi[👥 Multi-Character System]
+    Single --> LLM[🤖 LLM API]
+    Multi --> LLM
+    LLM --> Response[💬 Character Responses]
+    Response --> Frontend
+```
+
+### Individual Chat Flow
+When you chat one-on-one with a sister, she responds with her unique personality.
+
+```mermaid
+sequenceDiagram
+    participant You
+    participant Miku
+    participant AI as LLM API
+    
+    You->>Miku: "What's your favorite historical period?"
+    Miku->>AI: [Miku's personality + Your message]
+    AI->>Miku: Generate shy, history-focused response
+    Miku->>You: "...The Sengoku period... Takeda Shingen was amazing..."
+```
+
+---
+
+## 👥 Group Chat: The Nakano Room
+
+The most exciting feature! When you chat in the group, **all five sisters respond**, and they're aware of what each other said!
+
+### How Group Chat Works
+
+```mermaid
+flowchart TD
+    subgraph Step1["1️⃣ Your Message Arrives"]
+        User[/"Hey everyone, what's for dinner?"/]
+    end
+    
+    subgraph Step2["2️⃣ Detect Who's Addressed"]
+        Detect["🔍 Scan for names mentioned"]
+        Detect --> Result["Nobody specific = everyone responds!"]
+    end
+    
+    subgraph Step3["3️⃣ Sisters Respond In Order"]
+        Y["🍀 Yotsuba responds first (most energetic)"]
+        Y --> N["🦋 Nino responds (sees Yotsuba's answer)"]
+        N --> I1["🎭 Ichika responds (sees both)"]
+        I1 --> I2["⭐ Itsuki responds (food topic!)"]
+        I2 --> M["🎧 Miku responds last (quiet)"]
+    end
+    
+    Step1 --> Step2 --> Step3
+```
+
+### Sequential Response System
+
+Each sister sees what her sisters said before her, creating natural conversations:
+
+| Order | Sister | She Can See |
+|-------|--------|-------------|
+| 1st | Yotsuba | Just your message |
+| 2nd | Nino | Your message + Yotsuba's reply |
+| 3rd | Ichika | Your message + Yotsuba + Nino |
+| 4th | Itsuki | Your message + all 3 sisters |
+| 5th | Miku | Your message + all 4 sisters |
+
+---
+
+## 🎯 Context Awareness System
+
+A smart system that prevents sisters from "stealing" responses meant for others!
+
+### The Problem We Solved
+
+Without context awareness:
+```
+You: "That's amazing, Itsuki!!"
+Yotsuba: "Thank you so much!" ❌ (Wrong! Itsuki was praised)
+```
+
+With context awareness:
+```
+You: "That's amazing, Itsuki!!"
+Itsuki: "Thank you! I worked hard on this!" ✅
+Yotsuba: "Way to go, Itsuki!!" ✅ (Cheers for her sister)
+```
+
+### How It Works
+
+```mermaid
+flowchart LR
+    subgraph Detection["🔍 Name Detection"]
+        Msg["'Great job Itsuki!'"] --> Parser["Scan for names"]
+        Parser --> Found["Found: Itsuki"]
+    end
+    
+    subgraph Context["📋 Context Injection"]
+        Found --> Context1["Itsuki: 'You're talking to ME!'"]
+        Found --> Context2["Others: 'They're talking to Itsuki, not you'"]
+    end
+    
+    subgraph Response["💬 Smart Responses"]
+        Context1 --> R1["Itsuki thanks you directly"]
+        Context2 --> R2["Others congratulate Itsuki"]
+    end
+```
+
+### The Awareness Rules
+
+Each sister follows these rules:
+1. ✅ **If addressed directly** → Respond to the message
+2. ✅ **If another sister is addressed** → React appropriately (tease, cheer, etc.)
+3. ❌ **Never steal compliments** meant for another sister
+4. ❌ **Never answer questions** directed at another sister
+
+---
+
+## 🔄 Response Order Logic
+
+The sisters respond in a specific personality-based order:
+
+```
+Most Energetic ─────────────────────► Most Quiet
+
+🍀 Yotsuba → 🦋 Nino → 🎭 Ichika → ⭐ Itsuki → 🎧 Miku
+   (1st)       (2nd)      (3rd)       (4th)      (5th)
+```
+
+This creates natural conversations where:
+- **Yotsuba** jumps in first with enthusiasm
+- **Nino** reacts (often tsundere-style)
+- **Ichika** adds her mature perspective
+- **Itsuki** contributes thoughtfully
+- **Miku** quietly adds her thoughts last
+
+---
+
+## 🎨 Tech Stack Overview
+
+```mermaid
+graph TD
+    subgraph Frontend["🖥️ Frontend"]
+        Next["Next.js 16"]
+        React["React 19"]
+        Tailwind["Tailwind CSS v4"]
+        Motion["Motion.dev"]
+        Zustand["Zustand State"]
+    end
+    
+    subgraph Backend["⚙️ Backend"]
+        API["Next.js API Routes"]
+        LLM["ZenMux/OpenAI API"]
+        Prompts["Character Prompts"]
+    end
+    
+    subgraph Mobile["📱 Mobile"]
+        Capacitor["Capacitor"]
+        Android["Android APK"]
+    end
+    
+    Frontend --> Backend
+    Frontend --> Mobile
+```
+
+---
+
 ## 🛠️ Setup
 
 ### Prerequisites
