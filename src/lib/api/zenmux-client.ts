@@ -253,7 +253,10 @@ export async function getGroupChatResponses(
     conversationHistory: ChatMessage[] = [],
     attachment?: Attachment
 ): Promise<Map<CharacterId, string>> {
-    const { buildSisterResponseContext, getResponseOrder } = await import('../prompts/group-chat-prompts');
+    const { buildSisterResponseContext, getResponseOrder, detectAddressedSisters } = await import('../prompts/group-chat-prompts');
+
+    // Detect which sisters are being addressed in the user message
+    const addressedSisters = detectAddressedSisters(userMessage);
 
     // Order responders (energetic ones first, quiet ones last)
     const orderedResponders = getResponseOrder(characterIds);
@@ -264,8 +267,8 @@ export async function getGroupChatResponses(
     for (let i = 0; i < orderedResponders.length; i++) {
         const characterId = orderedResponders[i];
         try {
-            // Build context of what sisters already said this turn
-            const sisterContext = buildSisterResponseContext(responses, characterId);
+            // Build context with addressing awareness and sister responses
+            const sisterContext = buildSisterResponseContext(responses, characterId, addressedSisters);
 
             // Combine user message with sister context
             const enrichedMessage = sisterContext
