@@ -7,6 +7,26 @@ import {
 } from '@/lib/api/group-chat-logic';
 import { CharacterId } from '@/lib/characters';
 
+// CORS headers for mobile app (Capacitor)
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Handle preflight requests
+export async function OPTIONS() {
+    return new NextResponse(null, { status: 200, headers: corsHeaders });
+}
+
+// Helper to add CORS headers to JSON responses
+function jsonWithCors(data: unknown, init?: { status?: number }) {
+    return NextResponse.json(data, {
+        ...init,
+        headers: corsHeaders,
+    });
+}
+
 interface ChatMessage {
     role: 'user' | 'assistant';
     content: string;
@@ -32,7 +52,7 @@ export async function POST(request: NextRequest) {
         const { chatId, message, history = [], attachment } = body;
 
         if (!message?.trim()) {
-            return NextResponse.json(
+            return jsonWithCors(
                 { error: 'Message is required' },
                 { status: 400 }
             );
@@ -94,7 +114,7 @@ export async function POST(request: NextRequest) {
                 characterOrder.indexOf(a.characterId) - characterOrder.indexOf(b.characterId)
             );
 
-            return NextResponse.json({
+            return jsonWithCors({
                 type: 'group',
                 responses
             });
@@ -111,7 +131,7 @@ export async function POST(request: NextRequest) {
                     attachment // pass attachment if present
                 );
 
-                return NextResponse.json({
+                return jsonWithCors({
                     type: 'individual',
                     responses: [{
                         characterId,
@@ -121,7 +141,7 @@ export async function POST(request: NextRequest) {
                 });
             } catch (error) {
                 console.error(`Error getting response from ${characterId}:`, error);
-                return NextResponse.json(
+                return jsonWithCors(
                     { error: 'Failed to get response from character' },
                     { status: 500 }
                 );
@@ -129,7 +149,7 @@ export async function POST(request: NextRequest) {
         }
     } catch (error) {
         console.error('Chat API Error:', error);
-        return NextResponse.json(
+        return jsonWithCors(
             { error: 'Internal server error' },
             { status: 500 }
         );
