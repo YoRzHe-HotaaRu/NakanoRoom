@@ -62,7 +62,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
 
                         {/* Content container - scrollable on mobile, fit viewport on desktop */}
                         <div className="relative z-20 h-full overflow-y-auto md:overflow-hidden">
-                            <div className="min-h-full md:h-full flex flex-col items-center justify-start md:justify-center px-4 py-6 md:py-6">
+                            <div className="min-h-full md:h-full flex flex-col items-center justify-start md:justify-center px-4 pt-10 pb-6 md:py-6">
 
                                 {/* Hero Section */}
                                 <AnimatePresence>
