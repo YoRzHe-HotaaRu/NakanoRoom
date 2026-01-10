@@ -29,21 +29,21 @@ export function CharacterCard({ character, index }: CharacterCardProps) {
 
             {/* Card */}
             <motion.div
-                className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg border-2 overflow-hidden"
+                className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-3 lg:p-4 shadow-lg border-2 overflow-hidden"
                 style={{ borderColor: character.color + '60' }}
                 whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.98 }}
             >
                 {/* Corner ribbon with character emoji */}
                 <div
-                    className="absolute -top-1 -right-1 w-12 h-12 flex items-end justify-start pl-2 pb-2 text-lg"
+                    className="absolute -top-1 -right-1 w-10 h-10 lg:w-12 lg:h-12 flex items-end justify-start pl-2 pb-2 text-sm lg:text-lg"
                     style={{
                         background: `linear-gradient(135deg, transparent 50%, ${character.color} 50%)`,
                     }}
                 />
 
                 {/* Profile image */}
-                <div className="relative w-20 h-20 mx-auto mb-3">
+                <div className="relative w-16 h-16 lg:w-20 lg:h-20 mx-auto mb-2 lg:mb-3">
                     <motion.div
                         className="absolute inset-0 rounded-full"
                         style={{ backgroundColor: character.color }}
@@ -58,7 +58,7 @@ export function CharacterCard({ character, index }: CharacterCardProps) {
                         }}
                     />
                     <div
-                        className="relative w-full h-full rounded-full overflow-hidden border-3"
+                        className="relative w-full h-full rounded-full overflow-hidden border-2 lg:border-3"
                         style={{ borderColor: character.color }}
                     >
                         <Image
@@ -72,20 +72,20 @@ export function CharacterCard({ character, index }: CharacterCardProps) {
 
                 {/* Name */}
                 <h3
-                    className="text-center font-bold text-lg mb-1"
+                    className="text-center font-bold text-base lg:text-lg mb-1"
                     style={{ color: character.color }}
                 >
                     {character.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-center text-xs text-gray-500 leading-relaxed">
+                <p className="text-center text-xs text-gray-500 leading-relaxed line-clamp-2">
                     {character.traits[0]}
                 </p>
 
                 {/* Character trait badge */}
                 <motion.div
-                    className="mt-3 px-3 py-1 rounded-full text-xs font-medium text-center text-white"
+                    className="mt-2 lg:mt-3 px-2 lg:px-3 py-1 rounded-full text-xs font-medium text-center text-white"
                     style={{ backgroundColor: character.color }}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}

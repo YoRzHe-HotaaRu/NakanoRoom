@@ -60,9 +60,9 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                         {/* Sakura petals */}
                         <SakuraPetals count={30} />
 
-                        {/* Content container - scrollable on mobile, fit viewport on desktop */}
-                        <div className="relative z-20 h-full overflow-y-auto md:overflow-hidden">
-                            <div className="min-h-full md:h-full flex flex-col items-center justify-start md:justify-center px-4 pt-10 pb-6 md:py-6">
+                        {/* Content container - scrollable on all screens that need it */}
+                        <div className="relative z-20 h-full overflow-y-auto">
+                            <div className="min-h-full flex flex-col items-center justify-start md:justify-center px-4 pt-10 pb-6 md:py-4 lg:py-6">
 
                                 {/* Hero Section */}
                                 <AnimatePresence>
@@ -75,7 +75,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                         >
                                             {/* Logo/Icon */}
                                             <motion.div
-                                                className="w-20 h-20 md:w-32 md:h-32 mx-auto mb-3 rounded-full overflow-hidden border-3 md:border-4 border-sakura-300 shadow-lg"
+                                                className="w-20 h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 mx-auto mb-3 rounded-full overflow-hidden border-3 md:border-4 border-sakura-300 shadow-lg"
                                                 initial={{ scale: 0, rotate: -180 }}
                                                 animate={{ scale: 1, rotate: 0 }}
                                                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
@@ -91,7 +91,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
 
                                             {/* Title */}
                                             <motion.h1
-                                                className="text-2xl md:text-5xl font-display font-bold mb-1 md:mb-2"
+                                                className="text-2xl md:text-3xl lg:text-5xl font-display font-bold mb-1 md:mb-2"
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.4 }}
@@ -104,7 +104,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                             </motion.h1>
 
                                             <motion.p
-                                                className="text-base md:text-xl text-sakura-400 font-medium"
+                                                className="text-base md:text-lg lg:text-xl text-sakura-400 font-medium"
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 0.6 }}
@@ -140,13 +140,13 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                 <AnimatePresence>
                                     {showContent && (
                                         <motion.div
-                                            className="w-full max-w-5xl mb-4 md:mb-6"
+                                            className="w-full max-w-4xl lg:max-w-5xl mb-4 md:mb-4 lg:mb-6"
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.5 }}
                                         >
                                             <motion.h2
-                                                className="text-center text-lg md:text-2xl font-bold text-gray-700 mb-4 md:mb-5"
+                                                className="text-center text-lg md:text-xl lg:text-2xl font-bold text-gray-700 mb-4 md:mb-4 lg:mb-5"
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.7 }}
@@ -156,7 +156,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
 
                                             {/* Character grid - custom layout for mobile */}
                                             {/* Desktop: 5 columns */}
-                                            <div className="hidden md:grid md:grid-cols-5 gap-4 px-2">
+                                            <div className="hidden md:grid md:grid-cols-5 gap-2 lg:gap-4 px-2">
                                                 {Object.values(characters).map((char: Character, index: number) => (
                                                     <CharacterCard key={char.id} character={char} index={index} />
                                                 ))}
@@ -194,11 +194,11 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 1.5 }}
                                         >
-                                            <h2 className="text-center text-lg md:text-2xl font-bold text-gray-700 mb-3 md:mb-4">
+                                            <h2 className="text-center text-lg md:text-xl lg:text-2xl font-bold text-gray-700 mb-3 md:mb-3 lg:mb-4">
                                                 Features ✨
                                             </h2>
 
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 lg:gap-3">
                                                 {[
                                                     { icon: '💬', title: 'Chat', desc: 'Talk with each sister' },
                                                     { icon: '👥', title: 'Group', desc: 'Chat with all five!' },
@@ -234,7 +234,7 @@ export function WelcomeScreen({ onEnter }: WelcomeScreenProps) {
                                         >
                                             <motion.button
                                                 onClick={handleEnter}
-                                                className="relative px-8 py-4 bg-gradient-to-r from-sakura-400 via-pink-500 to-sakura-500 text-white font-bold text-lg rounded-full shadow-lg overflow-hidden group"
+                                                className="relative px-6 py-3 lg:px-8 lg:py-4 bg-gradient-to-r from-sakura-400 via-pink-500 to-sakura-500 text-white font-bold text-base lg:text-lg rounded-full shadow-lg overflow-hidden group"
                                                 whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(255, 107, 138, 0.4)' }}
                                                 whileTap={{ scale: 0.95 }}
                                             >
