@@ -9,6 +9,7 @@ import { getApiUrl } from '@/lib/api-config';
 import { Attachment } from '@/lib/api/zenmux-client';
 import Image from 'next/image';
 import { useState } from 'react';
+import { ImagePreviewModal } from '@/components/ui/ImagePreviewModal';
 
 /**
  * Parse and render markdown-style text formatting
@@ -59,11 +60,16 @@ function formatInlineStyles(content: string): ReactNode {
         // Attachment indicator: [📎 filename]
         {
             regex: /\[📎 (.+?)\]/,
-            render: (t) => (
-                <span key={key++} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium">
-                    📎 {t}
-                </span>
-            )
+            render: (t) => {
+                // Truncate long filenames
+                const maxLen = 20;
+                const displayName = t.length > maxLen ? t.slice(0, maxLen) + '...' : t;
+                return (
+                    <span key={key++} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium max-w-full">
+                        📎 <span className="truncate">{displayName}</span>
+                    </span>
+                );
+            }
         },
         { regex: /\*\*(.+?)\*\*/, render: (t) => <strong key={key++} className="font-bold">{t}</strong> },
         { regex: /~~(.+?)~~/, render: (t) => <del key={key++} className="line-through">{t}</del> },
@@ -512,6 +518,7 @@ function MobileMessageBubble({ message, index }: { message: Message; index: numb
     const isUser = message.role === 'user';
     const character = message.characterId ? getCharacter(message.characterId) : null;
     const setReplyToMessage = useChatStore((state) => state.setReplyToMessage);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     return (
         <motion.div
@@ -554,18 +561,17 @@ function MobileMessageBubble({ message, index }: { message: Message; index: numb
                         {/* Image preview for attachments */}
                         {message.imagePreview && (
                             <div className="mb-2">
-                                <a
-                                    href={message.imagePreview}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <button
+                                    onClick={() => setPreviewImage(message.imagePreview!)}
                                     className="block"
+                                    type="button"
                                 >
                                     <img
                                         src={message.imagePreview}
                                         alt="Attached image"
                                         className="max-w-[180px] max-h-[180px] rounded-lg object-cover border-2 border-white/30"
                                     />
-                                </a>
+                                </button>
                             </div>
                         )}
                         {formatMessageContent(message.content, isUser)}
@@ -581,6 +587,12 @@ function MobileMessageBubble({ message, index }: { message: Message; index: numb
                     )}
                 </div>
             </div>
+
+            {/* Image preview modal */}
+            <ImagePreviewModal
+                imageUrl={previewImage}
+                onClose={() => setPreviewImage(null)}
+            />
         </motion.div>
     );
 }

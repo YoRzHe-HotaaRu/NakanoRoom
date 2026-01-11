@@ -3,10 +3,11 @@
 import { motion } from 'motion/react';
 import { Message, useChatStore } from '@/store/chatStore';
 import { getCharacter, CharacterId } from '@/lib/characters';
-import { useMemo, ReactNode } from 'react';
+import { useMemo, ReactNode, useState } from 'react';
 import { ContextMenu } from '@/components/ui/ContextMenu';
 import { Reply } from 'lucide-react';
 import Image from 'next/image';
+import { ImagePreviewModal } from '@/components/ui/ImagePreviewModal';
 
 /**
  * Parse and render markdown-style text formatting
@@ -59,11 +60,16 @@ function formatInlineStyles(content: string): ReactNode {
         // Attachment indicator: [📎 filename]
         {
             regex: /\[📎 (.+?)\]/,
-            render: (t) => (
-                <span key={key++} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium">
-                    📎 {t}
-                </span>
-            )
+            render: (t) => {
+                // Truncate long filenames
+                const maxLen = 25;
+                const displayName = t.length > maxLen ? t.slice(0, maxLen) + '...' : t;
+                return (
+                    <span key={key++} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium max-w-full" title={t}>
+                        📎 <span className="truncate">{displayName}</span>
+                    </span>
+                );
+            }
         },
         // Bold: **text**
         { regex: /\*\*(.+?)\*\*/, render: (t) => <strong key={key++} className="font-bold">{t}</strong> },
@@ -119,6 +125,7 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
     const isUser = message.role === 'user';
     const character = message.characterId ? getCharacter(message.characterId) : null;
     const setReplyToMessage = useChatStore((state) => state.setReplyToMessage);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     const formattedTime = useMemo(() => {
         return new Date(message.timestamp).toLocaleTimeString([], {
@@ -208,18 +215,17 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                         {/* Image preview for attachments */}
                         {message.imagePreview && (
                             <div className="mb-2">
-                                <a
-                                    href={message.imagePreview}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <button
+                                    onClick={() => setPreviewImage(message.imagePreview!)}
                                     className="block"
+                                    type="button"
                                 >
                                     <img
                                         src={message.imagePreview}
                                         alt="Attached image"
                                         className="max-w-[200px] max-h-[200px] rounded-lg object-cover border-2 border-white/30 hover:border-white/60 transition-colors cursor-pointer"
                                     />
-                                </a>
+                                </button>
                             </div>
                         )}
                         <div className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -240,6 +246,12 @@ export function MessageBubble({ message, index }: MessageBubbleProps) {
                     You
                 </div>
             )}
+
+            {/* Image preview modal */}
+            <ImagePreviewModal
+                imageUrl={previewImage}
+                onClose={() => setPreviewImage(null)}
+            />
         </motion.div>
     );
 }
