@@ -1,4 +1,4 @@
-# 🌸 Nakano Room - Chat with the Quintuplets!
+# 🌸 Nakano Room - Chat with the Beautiful Quintuplets!
 
 <div align="center">
   <img src="public/Asset/NakanoRoom/NakanoRoomChatPic.jpg" alt="Nakano Room" width="200" style="border-radius: 20px"/>
